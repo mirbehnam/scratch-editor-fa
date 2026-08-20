@@ -14,6 +14,7 @@ import {legacyConfig} from '../../legacy-config';
 import Spinner from '../spinner/spinner.jsx';
 import {CATEGORIES} from '../../../src/lib/libraries/decks/index.jsx';
 import getStaticURL from '../../lib/static-url.js';
+import libraryItemMatchesQuery from '../../lib/libraries/library-item-search.js';
 
 import styles from './library.css';
 import {ModalFocusContext} from '../../contexts/modal-focus-context.jsx';
@@ -242,22 +243,21 @@ class LibraryComponent extends React.Component {
     handleFilterClear () {
         this.setState({filterQuery: ''});
     }
+    getItemName (dataItem) {
+        if (!dataItem.name) return '';
+        if (typeof dataItem.name === 'string') {
+            return this.props.getItemName ? this.props.getItemName(dataItem.name) : dataItem.name;
+        }
+        return this.props.intl.formatMessage(dataItem.name.props);
+    }
     getFilteredData () {
         const availableData = this.props.data.filter(dataItem => !dataItem.disabled);
         if (this.state.selectedTag === ALL_TAG.tag) {
             if (!this.state.filterQuery) return availableData;
-            return availableData.filter(dataItem => (
-                (dataItem.tags || [])
-                    // Second argument to map sets `this`
-                    .map(String.prototype.toLowerCase.call, String.prototype.toLowerCase)
-                    .concat(dataItem.name ?
-                        (typeof dataItem.name === 'string' ?
-                        // Use the name if it is a string, else use formatMessage to get the translated name
-                            dataItem.name : this.props.intl.formatMessage(dataItem.name.props)
-                        ).toLowerCase() :
-                        null)
-                    .join('\n') // unlikely to partially match newlines
-                    .indexOf(this.state.filterQuery.toLowerCase()) !== -1
+            return availableData.filter(dataItem => libraryItemMatchesQuery(
+                dataItem,
+                this.state.filterQuery,
+                this.getItemName(dataItem)
             ));
         }
         return availableData.filter(dataItem => (
@@ -293,7 +293,7 @@ class LibraryComponent extends React.Component {
             internetConnectionRequired={data.internetConnectionRequired}
             isPlaying={this.state.playingItem === key}
             key={key}
-            name={data.name}
+            name={this.getItemName(data)}
             showPlayButton={this.props.showPlayButton}
             onMouseEnter={this.handleMouseEnter}
             onMouseLeave={this.handleMouseLeave}
@@ -417,6 +417,7 @@ LibraryComponent.propTypes = {
          
     ),
     filterable: PropTypes.bool,
+    getItemName: PropTypes.func,
     withCategories: PropTypes.bool,
     id: PropTypes.string.isRequired,
     intl: intlShape.isRequired,

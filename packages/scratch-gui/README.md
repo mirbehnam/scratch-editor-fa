@@ -62,6 +62,14 @@ the generated directory structure. For example, if the destination is `app/src/m
 fonts, block media, extension files, and `static/assets` directory. Do not patch generated files; rebuild them from
 the source in this repository.
 
+### Persian library names
+
+Built-in sprite, backdrop, and sound names are translated when the editor locale is Persian. Their original English
+names remain searchable, and Persian search normalizes Arabic/Persian letter variants, diacritics, zero-width marks,
+and Persian digits. Translation data and language-specific rules live in
+`src/lib/libraries/translations/fa.js`; locale selection and built-in asset protection live in
+`src/lib/libraries/translate-library-name.js`. Custom or dynamically loaded asset names are never translated.
+
 ### Loading projects from Android
 
 When the file uploader mounts, it exposes these functions on `window`:

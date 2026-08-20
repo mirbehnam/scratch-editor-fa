@@ -10,6 +10,7 @@ import mergeDynamicAssets from '../lib/merge-dynamic-assets.js';
 
 import backdropLibraryContent from '../lib/libraries/backdrops.json';
 import backdropTags from '../lib/libraries/backdrop-tags';
+import translateLibraryName from '../lib/libraries/translate-library-name.js';
 import LibraryComponent from '../components/library/library.jsx';
 
 const messages = defineMessages({
@@ -26,13 +27,14 @@ class BackdropLibrary extends React.Component {
         super(props);
         bindAll(this, [
             'handleItemSelect',
+            'getItemName',
             'mergeDynamicAssets'
         ]);
         this.processedBackdrops = {};
     }
     handleItemSelect (item) {
         const vmBackdrop = {
-            name: item.name,
+            name: this.getItemName(item.name),
             rotationCenterX: item.rotationCenterX,
             rotationCenterY: item.rotationCenterY,
             bitmapResolution: item.bitmapResolution,
@@ -40,6 +42,9 @@ class BackdropLibrary extends React.Component {
         };
         // Do not switch to stage, just add the backdrop
         this.props.vm.addBackdrop(item.md5ext, vmBackdrop);
+    }
+    getItemName (name) {
+        return translateLibraryName('backdrops', name, this.props.intl.locale);
     }
     mergeDynamicAssets () {
         if (this.processedBackdrops.source === this.props.dynamicBackdrops) {
@@ -57,6 +62,7 @@ class BackdropLibrary extends React.Component {
         return (
             <LibraryComponent
                 data={mergedAssets}
+                getItemName={this.getItemName}
                 id="backdropLibrary"
                 tags={backdropTags}
                 title={this.props.intl.formatMessage(messages.libraryTitle)}

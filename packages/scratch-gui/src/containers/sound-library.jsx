@@ -15,6 +15,7 @@ import soundIconRtl from '../components/library-item/lib-icon--sound-rtl.svg';
 import soundLibraryContent from '../lib/libraries/sounds.json';
 import soundTags from '../lib/libraries/sound-tags';
 import mergeDynamicAssets from '../lib/merge-dynamic-assets.js';
+import translateLibraryName from '../lib/libraries/translate-library-name.js';
 
 import {connect} from 'react-redux';
 
@@ -33,6 +34,7 @@ class SoundLibrary extends React.PureComponent {
             'handleItemSelected',
             'handleItemMouseEnter',
             'handleItemMouseLeave',
+            'getItemName',
             'onStop',
             'setStopHandler',
             'mergeDynamicAssets'
@@ -148,11 +150,14 @@ class SoundLibrary extends React.PureComponent {
             md5: soundItem._md5,
             rate: soundItem.rate,
             sampleCount: soundItem.sampleCount,
-            name: soundItem.name
+            name: this.getItemName(soundItem.name)
         };
         this.props.vm.addSound(vmSound).then(() => {
             this.props.onNewSound();
         });
+    }
+    getItemName (name) {
+        return translateLibraryName('sounds', name, this.props.intl.locale);
     }
     mergeDynamicAssets () {
         if (this.processedSounds.source === this.props.dynamicSounds) {
@@ -184,6 +189,7 @@ class SoundLibrary extends React.PureComponent {
             <LibraryComponent
                 showPlayButton
                 data={soundLibraryThumbnailData}
+                getItemName={this.getItemName}
                 id="soundLibrary"
                 setStopHandler={this.setStopHandler}
                 tags={soundTags}

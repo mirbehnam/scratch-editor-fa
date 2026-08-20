@@ -11,6 +11,7 @@ import mergeDynamicAssets from '../lib/merge-dynamic-assets.js';
 import spriteLibraryContent from '../lib/libraries/sprites.json';
 import randomizeSpritePosition from '../lib/randomize-sprite-position';
 import spriteTags from '../lib/libraries/sprite-tags';
+import translateLibraryName from '../lib/libraries/translate-library-name.js';
 
 import LibraryComponent from '../components/library/library.jsx';
 
@@ -27,6 +28,7 @@ class SpriteLibrary extends React.PureComponent {
         super(props);
         bindAll(this, [
             'handleItemSelect',
+            'getItemName',
             'mergeDynamicAssets'
         ]);
         this.processedSprites = {};
@@ -34,9 +36,16 @@ class SpriteLibrary extends React.PureComponent {
     handleItemSelect (item) {
         // Randomize position of library sprite
         randomizeSpritePosition(item);
-        this.props.vm.addSprite(JSON.stringify(item)).then(() => {
+        const localizedItem = {
+            ...item,
+            name: this.getItemName(item.name)
+        };
+        this.props.vm.addSprite(JSON.stringify(localizedItem)).then(() => {
             this.props.onActivateBlocksTab();
         });
+    }
+    getItemName (name) {
+        return translateLibraryName('sprites', name, this.props.intl.locale);
     }
     mergeDynamicAssets () {
         if (this.processedSprites.source === this.props.dynamicSprites) {
@@ -53,6 +62,7 @@ class SpriteLibrary extends React.PureComponent {
         return (
             <LibraryComponent
                 data={data}
+                getItemName={this.getItemName}
                 id="spriteLibrary"
                 tags={spriteTags}
                 title={this.props.intl.formatMessage(messages.libraryTitle)}
