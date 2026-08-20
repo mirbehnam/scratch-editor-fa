@@ -32,16 +32,19 @@ class LibraryItemComponent extends React.PureComponent {
         ]);
     }
     renderImage (className, imageSource) {
-        // Scratch Android and Scratch Desktop assume the user is offline and has
-        // local access to the image assets. In those cases we use the `ScratchImage`
-        // component which loads the local assets by using a queue. In Scratch Web
-        // we don't have the assets locally and want to directly download them from
-        // the assets service.
+        // Android can let the WebView load bundled thumbnails directly. Desktop
+        // uses `ScratchImage` to read local assets through storage, while Scratch
+        // Web loads them directly from the assets service.
         // TODO: Abstract this logic in the `ScratchImage` component itself.
         const url = imageSource.uri ?? imageSource.assetServiceUri;
 
-        if (this.props.platform === PLATFORM.ANDROID ||
-            this.props.platform === PLATFORM.DESKTOP) {
+        if (this.props.platform === PLATFORM.ANDROID && (imageSource.uri || imageSource.localUri)) {
+            return (<img
+                className={className}
+                src={imageSource.uri ?? imageSource.localUri}
+            />);
+        }
+        if (this.props.platform === PLATFORM.ANDROID || this.props.platform === PLATFORM.DESKTOP) {
             return (<ScratchImage
                 className={className}
                 imageSource={imageSource}

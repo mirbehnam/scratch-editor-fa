@@ -134,7 +134,8 @@ ScratchImage.ImageSourcePropType = PropTypes.oneOfType([
                 legacyConfig.storage.scratchStorage.AssetType
             )
         ).isRequired,
-        assetServiceUri: PropTypes.string.isRequired
+        assetServiceUri: PropTypes.string.isRequired,
+        localUri: PropTypes.string
     }),
     PropTypes.shape({
         uri: PropTypes.string.isRequired

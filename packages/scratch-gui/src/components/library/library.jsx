@@ -13,6 +13,7 @@ import TagButton from '../../containers/tag-button.jsx';
 import {legacyConfig} from '../../legacy-config';
 import Spinner from '../spinner/spinner.jsx';
 import {CATEGORIES} from '../../../src/lib/libraries/decks/index.jsx';
+import getStaticURL from '../../lib/static-url.js';
 
 import styles from './library.css';
 import {ModalFocusContext} from '../../contexts/modal-focus-context.jsx';
@@ -107,7 +108,8 @@ const getItemIcons = function (item) {
         return {
             assetId: item.assetId,
             assetType: getAssetTypeForFileExtension(item.dataFormat),
-            assetServiceUri: `https://cdn.assets.scratch.mit.edu/internalapi/asset/${item.assetId}.${item.dataFormat}/get/`
+            assetServiceUri: `https://cdn.assets.scratch.mit.edu/internalapi/asset/${item.assetId}.${item.dataFormat}/get/`,
+            localUri: getStaticURL(`assets/${item.assetId}.${item.dataFormat}`)
         };
     }
 
@@ -117,7 +119,8 @@ const getItemIcons = function (item) {
         return {
             assetId: assetId,
             assetType: getAssetTypeForFileExtension(fileExtension),
-            assetServiceUri: `https://cdn.assets.scratch.mit.edu/internalapi/asset/${md5ext}/get/`
+            assetServiceUri: `https://cdn.assets.scratch.mit.edu/internalapi/asset/${md5ext}/get/`,
+            localUri: getStaticURL(`assets/${md5ext}`)
         };
     }
 };
