@@ -47,9 +47,17 @@ const SBFileUploaderHOC = function (WrappedComponent) {
                 'handleFinishedLoadingUpload',
                 'handleStartSelectingFileUpload',
                 'handleChange',
+                'loadProjectFromUrl',
                 'onload',
                 'removeFileObjects'
             ]);
+        }
+        componentDidMount () {
+            window.AndroidScratchLoadProject = this.handleStartSelectingFileUpload;
+            window.AndroidScratchLoadProjectUrl = this.loadProjectFromUrl;
+            if (window.AndroidProjectSaver && typeof window.AndroidProjectSaver.projectLoaderReady === 'function') {
+                window.AndroidProjectSaver.projectLoaderReady();
+            }
         }
         componentDidUpdate (prevProps) {
             if (this.props.isLoadingUpload && !prevProps.isLoadingUpload) {
@@ -57,11 +65,38 @@ const SBFileUploaderHOC = function (WrappedComponent) {
             }
         }
         componentWillUnmount () {
+            delete window.AndroidScratchLoadProject;
+            delete window.AndroidScratchLoadProjectUrl;
             this.removeFileObjects();
         }
         // step 1: this is where the upload process begins
         handleStartSelectingFileUpload () {
             this.createFileObjects(); // go to step 2
+        }
+        loadProjectFromUrl (url, filename) {
+            if (window.AndroidProjectSaver && typeof window.AndroidProjectSaver.projectLoadStarted === 'function') {
+                window.AndroidProjectSaver.projectLoadStarted();
+            }
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to load Android project: ${response.status} ${response.statusText}`);
+                    }
+                    return response.arrayBuffer();
+                })
+                .then(projectData => {
+                    this.removeFileObjects();
+                    this.fileReader = new FileReader();
+                    this.fileReader.onload = this.onload;
+                    this.fileToUpload = new File([projectData], filename, {
+                        type: 'application/x.scratch.sb3'
+                    });
+                    this.props.requestProjectUpload(this.props.loadingState);
+                })
+                .catch(error => {
+                    log.warn(error);
+                    alert(this.props.intl.formatMessage(messages.loadError)); // eslint-disable-line no-alert
+                });
         }
         // step 2: create a FileReader and an <input> element, and issue a
         // pseudo-click to it. That will open the file chooser dialog.
