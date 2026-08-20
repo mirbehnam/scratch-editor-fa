@@ -1,4 +1,11 @@
-import {ScratchStorage, Asset} from '@scratch/scratch-storage';
+import {
+    ScratchStorage,
+    Asset,
+    AssetId,
+    AssetType,
+    DataFormat,
+    Helper
+} from '@scratch/scratch-storage';
 
 import defaultProject from './default-project';
 import {GUIStorage, TranslatorFunction, VirtualMachine, GUICloudVariableProvider} from '../gui-config';
@@ -6,6 +13,33 @@ import {LegacyBackpackStorage} from './legacy-backpack-storage';
 import CloudProvider from './cloud-provider';
 
 import saveProjectToServer from '../lib/save-project-to-server';
+import getStaticURL from './static-url';
+
+const getAssetFileName = (asset: {assetId?: AssetId; dataFormat?: DataFormat}) => {
+    const assetId = String(asset.assetId);
+    const extension = `.${asset.dataFormat}`;
+    return assetId.endsWith(extension) ? assetId : `${assetId}${extension}`;
+};
+
+class OfflineAssetHelper extends Helper {
+    load (assetType: AssetType, assetId: AssetId, dataFormat: DataFormat) {
+        if (assetType === this.parent.AssetType.Project) return null;
+
+        const url = getStaticURL(`assets/${getAssetFileName({assetId, dataFormat})}`);
+        return this.parent.scratchFetch.scratchFetch(url, {cache: 'no-store'})
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
+                return response.arrayBuffer();
+            })
+            .then(data => this.parent.createAsset(
+                assetType,
+                dataFormat,
+                new Uint8Array(data),
+                assetId,
+                false
+            ));
+    }
+}
 
 export class LegacyStorage implements GUIStorage {
     private projectHost?: string;
@@ -40,6 +74,7 @@ export class LegacyStorage implements GUIStorage {
 
     constructor () {
         this.cacheDefaultProject(this.scratchStorage);
+        this.scratchStorage.addHelper(new OfflineAssetHelper(this.scratchStorage), 50);
         this.addOfficialScratchWebStores(this.scratchStorage);
     }
 
@@ -121,7 +156,7 @@ export class LegacyStorage implements GUIStorage {
 
         storage.addWebStore(
             [storage.AssetType.Sound],
-            asset => `static/extension-assets/scratch3_music/${asset.assetId}.${asset.dataFormat}`
+            asset => getStaticURL(`extension-assets/scratch3_music/${getAssetFileName(asset)}`)
         );
     }
 
@@ -146,7 +181,7 @@ export class LegacyStorage implements GUIStorage {
     }
 
     private getAssetGetConfig (asset: Asset) {
-        return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
+        return getStaticURL(`assets/${getAssetFileName(asset)}`);
     }
 
     private getAssetCreateConfig (asset: Asset) {
