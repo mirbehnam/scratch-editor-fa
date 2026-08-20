@@ -18,7 +18,7 @@ $more-button-size: 2.25rem;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "BYekan", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background: $looks-secondary;
     outline: none;
     border: none;
@@ -36,10 +36,6 @@ button::-moz-focus-inner {
 
 .button:active {
     padding: inherit;
-}
-
-.button.coming-soon:hover {
-    background: $data-primary;
 }
 
 .main-button {
@@ -133,36 +129,23 @@ button::-moz-focus-inner {
     height: calc($more-button-size - 1rem);
 }
 
-.coming-soon .more-icon {
-    opacity: 0.5;
-}
-
 /*
-    @todo needs to be refactored with coming soon tooltip overrides.
-    The "!important"s are for the same reason as with coming soon, the library
-    is not very easy to style.
+    The "!important"s are needed because the tooltip library is not very easy
+    to style.
 */
 .tooltip {
     background-color: $extensions-primary !important;
     opacity: 1 !important;
     border: 1px solid hsla(0, 0%, 0%, .1) !important;
     box-shadow: 0 0 .5rem hsla(0, 0%, 0%, .25) !important;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-}
-
-.coming-soon-tooltip {
-    background-color: $data-primary !important;
-}
-
-.coming-soon-tooltip:after {
-    background-color: $data-primary !important;
+    font-family: "BYekan", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
 .tooltip {
     border: 1px solid hsla(0, 0%, 0%, .1) !important;
     border-radius: $form-radius !important;
     box-shadow: 0 0 .5rem hsla(0, 0%, 0%, .25) !important;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-family: "BYekan", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     z-index: $z-index-tooltip !important;
     --tooltip-arrow-color: $extensions-primary;
 }

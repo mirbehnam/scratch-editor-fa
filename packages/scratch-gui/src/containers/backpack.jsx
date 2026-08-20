@@ -231,6 +231,8 @@ class Backpack extends React.Component {
         this.getContents();
     }
     render () {
+        if (!this.props.host) return null;
+
         return (
             <DroppableBackpack
                 blockDragOver={this.state.blockDragOverBackpack}
@@ -244,7 +246,7 @@ class Backpack extends React.Component {
                 onMore={this.handleMore}
                 onPointerEnter={this.handlePointerEnter}
                 onPointerLeave={this.handlePointerLeave}
-                onToggle={this.props.host ? this.handleToggle : null}
+                onToggle={this.handleToggle}
                 ariaRole={this.props.ariaRole}
                 ariaLabel={this.props.ariaLabel}
             />

@@ -78,11 +78,11 @@ export default appTarget => {
             /> :
             <WrappedGui
                 canEditTitle
-                backpackVisible
-                showComingSoon
+                backpackVisible={Boolean(backpackHost)}
                 backpackHost={backpackHost}
                 canSave={false}
                 onClickLogo={onClickLogo}
+                platform={PLATFORM.ANDROID}
             />
     );
 };

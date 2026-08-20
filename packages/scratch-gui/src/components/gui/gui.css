@@ -1,6 +1,7 @@
 @import "../../css/units.css";
 @import "../../css/colors.css";
 @import "../../css/z-index.css";
+@import "../../css/typography.css";
 
 .page-wrapper {
     height: 100%;
@@ -67,7 +68,7 @@
     align-items: flex-end;
     flex-shrink: 0;
 
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "BYekan", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 500;
     font-size: 0.80rem;
 

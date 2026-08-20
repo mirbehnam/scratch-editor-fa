@@ -41,6 +41,57 @@ npm start
 
 Then go to [http://localhost:8601/](http://localhost:8601/) - the playground outputs the default GUI component
 
+## Offline Android build
+
+This fork can be embedded in an Android `WebView` and run without network access. Library media is loaded from
+`static/assets`, Persian with right-to-left layout is the default, and normal browser loading and downloading remain
+available when the Android bridge is absent.
+
+From the monorepo root, install dependencies, make sure all current library assets are present, and build the GUI:
+
+```bash
+npm ci
+npm run assets:download --workspace=packages/scratch-gui
+npm run build --workspace=packages/scratch-gui
+npm run build:verify-offline --workspace=packages/scratch-gui
+```
+
+Copy the complete contents of `packages/scratch-gui/build/` into the Android app's WebView asset directory, preserving
+the generated directory structure. For example, if the destination is `app/src/main/assets/build/`, load
+`index.html` from that directory. Do not copy only `gui.js`, because the editor also requires the generated chunks,
+fonts, block media, extension files, and `static/assets` directory. Do not patch generated files; rebuild them from
+the source in this repository.
+
+### Loading projects from Android
+
+When the file uploader mounts, it exposes these functions on `window`:
+
+- `AndroidScratchLoadProject()` opens the normal browser file picker.
+- `AndroidScratchLoadProjectUrl(url, filename)` loads an `.sb3` URL through Scratch's normal project-loading flow.
+
+Inject a JavaScript interface named `AndroidProjectSaver`. The editor calls `projectLoaderReady()` when the global
+loader functions are ready and `projectLoadStarted()` when URL loading begins, if those methods exist. A private
+project can be exposed safely with `WebViewAssetLoader`, for example at:
+
+```text
+https://appassets.androidplatform.net/projects/example.sb3
+```
+
+The Android path handler should only serve `.sb3` files whose canonical paths remain inside the app's private project
+directory. The global JavaScript loader functions are removed when their React component unmounts.
+
+### Saving projects and sprites to Android
+
+For `.sb3` and `.sprite3` downloads, the editor uses `AndroidProjectSaver` when all methods for the relevant file type
+are available. It sends Base64 in 256 KiB chunks:
+
+- Projects: `beginSave(filename)`, `appendChunk(chunk)`, `finishSave()`.
+- Sprites: `beginSpriteSave(filename, size)`, `appendSpriteChunk(chunk)`, `finishSpriteSave()`.
+
+If the bridge is missing or incomplete, the editor uses its normal browser download behavior. Android should write
+incoming chunks to an app-private temporary file and atomically move it into place only after the matching `finish`
+call succeeds.
+
 ## Developing alongside other Scratch repositories
 
 ### Getting another repo to point to this code

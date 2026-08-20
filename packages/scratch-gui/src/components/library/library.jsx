@@ -240,9 +240,10 @@ class LibraryComponent extends React.Component {
         this.setState({filterQuery: ''});
     }
     getFilteredData () {
+        const availableData = this.props.data.filter(dataItem => !dataItem.disabled);
         if (this.state.selectedTag === ALL_TAG.tag) {
-            if (!this.state.filterQuery) return this.props.data;
-            return this.props.data.filter(dataItem => (
+            if (!this.state.filterQuery) return availableData;
+            return availableData.filter(dataItem => (
                 (dataItem.tags || [])
                     // Second argument to map sets `this`
                     .map(String.prototype.toLowerCase.call, String.prototype.toLowerCase)
@@ -256,7 +257,7 @@ class LibraryComponent extends React.Component {
                     .indexOf(this.state.filterQuery.toLowerCase()) !== -1
             ));
         }
-        return this.props.data.filter(dataItem => (
+        return availableData.filter(dataItem => (
             dataItem.tags &&
             dataItem.tags
                 .map(String.prototype.toLowerCase.call, String.prototype.toLowerCase)

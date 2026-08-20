@@ -58,6 +58,14 @@ describe('MenuBar Component', () => {
         expect(button).toBeTruthy();
     });
 
+    test('does not render tutorials, debug, or placeholder account controls', () => {
+        const {queryByRole, queryByText} = renderWithIntl(getComponent({showComingSoon: true}));
+
+        expect(queryByRole('button', {name: 'Tutorials'})).toBeNull();
+        expect(queryByRole('button', {name: 'Debug'})).toBeNull();
+        expect(queryByText('scratch-cat')).toBeNull();
+    });
+
     describe('triggering About button handler', () => {
         test('clicking on About button calls the handler', () => {
             const onClickAbout = jest.fn();

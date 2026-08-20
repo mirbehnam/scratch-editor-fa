@@ -1,8 +1,8 @@
 import path from 'path';
+import {By} from 'selenium-webdriver';
 import SeleniumHelper from '../helpers/selenium-helper';
 
 const {
-    clickText,
     getDriver,
     getLogs,
     loadUri
@@ -21,10 +21,10 @@ describe('Working with the how-to library', () => {
         await driver.quit();
     });
 
-    test('Backpack is "Coming Soon" without backpack host param', async () => {
+    test('Backpack is hidden without backpack host param', async () => {
         await loadUri(uri);
-        // Check that the backpack header is visible and wrapped in a coming soon tooltip
-        await clickText('Backpack', '*[@data-for="backpack-tooltip"]');
+        const backpackElements = await driver.findElements(By.xpath('//*[text()="Backpack"]'));
+        await expect(backpackElements).toHaveLength(0);
         const logs = await getLogs();
         await expect(logs).toEqual([]);
     });

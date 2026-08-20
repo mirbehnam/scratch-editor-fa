@@ -74,15 +74,6 @@ class LibraryItemComponent extends React.PureComponent {
             >
                 <div className={styles.contentWrapper}>
                     <div className={styles.featuredImageContainer}>
-                        {this.props.disabled ? (
-                            <div className={styles.comingSoonText}>
-                                <FormattedMessage
-                                    defaultMessage="Coming Soon"
-                                    description="Label for extensions that are not yet implemented"
-                                    id="gui.extensionLibrary.comingSoon"
-                                />
-                            </div>
-                        ) : null}
                         {this.props.iconSource ? (
                             this.renderImage(styles.featuredImage, this.props.iconSource)
                         ) : null}

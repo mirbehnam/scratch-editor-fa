@@ -41,6 +41,18 @@ describe('ActionMenu keyboard navigation', () => {
         expect(mainButton.parentElement).toHaveClass('expanded');
     });
 
+    test('does not render unavailable items', () => {
+        render(<ActionMenu
+            {...defaultProps}
+            moreButtons={[
+                ...defaultProps.moreButtons,
+                {title: 'Unavailable Button', img: 'unavailable.svg'}
+            ]}
+        />);
+
+        expect(screen.queryByRole('button', {name: 'Unavailable Button'})).not.toBeInTheDocument();
+    });
+
     test('focuses first item on arrow_down', async () => {
         render(<ActionMenu {...defaultProps} />);
         const mainButton = screen.getByRole('button', {name: 'Main Button'});

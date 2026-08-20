@@ -1,5 +1,25 @@
-body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-face {
+    font-family: "BYekan";
+    src: url("scratch-gui-fonts/BYekan.woff2") format("woff2");
+    font-style: normal;
+    font-weight: normal;
+    font-display: swap;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+    font-family: "BYekan", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+:global(.blocklyText),
+:global(.blocklyFlyoutLabelText),
+:global(.blocklyHtmlInput),
+:global(.blocklyWidgetDiv),
+:global(.blocklyTooltipDiv) {
+    font-family: "BYekan", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
 h2 {

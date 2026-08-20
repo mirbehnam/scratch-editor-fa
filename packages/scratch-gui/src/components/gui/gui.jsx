@@ -190,7 +190,6 @@ const GUIComponent = props => {
         onTelemetryModalOptIn,
         onTelemetryModalOptOut,
         onUpdateProjectThumbnail,
-        showComingSoon,
         showNewFeatureCallouts,
         soundsTabVisible,
         stageSizeMode,
@@ -357,7 +356,6 @@ const GUIComponent = props => {
                             isTotallyNormal={isTotallyNormal}
                             logo={logo}
                             renderLogin={renderLogin}
-                            showComingSoon={showComingSoon}
                             onClickAbout={onClickAbout}
                             onClickLogo={onClickLogo}
                             onLogOut={onLogOut}
@@ -652,7 +650,6 @@ GUIComponent.propTypes = {
     platform: PropTypes.oneOf(Object.keys(PLATFORM)),
     renderLogin: PropTypes.func,
     setTheme: PropTypes.func.isRequired,
-    showComingSoon: PropTypes.bool,
     showNewFeatureCallouts: PropTypes.bool,
     soundsTabVisible: PropTypes.bool,
     stageSizeMode: PropTypes.oneOf(Object.keys(STAGE_SIZE_MODES)),
@@ -693,7 +690,6 @@ GUIComponent.defaultProps = {
     isTotallyNormal: false,
     loading: false,
     menuBarHidden: false,
-    showComingSoon: false,
     showNewFeatureCallouts: false,
     stageSizeMode: STAGE_SIZE_MODES.large,
     useExternalPeripheralList: false

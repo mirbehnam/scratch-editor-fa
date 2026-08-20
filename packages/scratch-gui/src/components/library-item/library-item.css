@@ -12,7 +12,7 @@
     max-width: 160px;
     margin: $space;
     padding: 1rem 1rem 0 1rem;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "BYekan", "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: $text-primary;
     background: white;
     border-width: 2px;
@@ -191,24 +191,6 @@
     margin-right: 0.25rem;
 }
 
-.coming-soon-text {
-    position: absolute;
-    background-color: $data-primary;
-    border-radius: 1rem;
-    box-shadow: 0 0 .5rem hsla(0, 0%, 0%, .25);
-    padding: .5rem 1rem;
-    font-size: .875rem;
-    font-weight: bold;
-    color: $ui-white;
-}
-
-[dir="ltr"] .coming-soon-text {
-    transform: translate(calc(2 * $space), calc(2 * $space));
-}
-
-[dir="rtl"] .coming-soon-text {
-    transform: translate(calc(-2 * $space), calc(2 * $space));
-}
 
 .member-asset-icon {
     position: absolute;

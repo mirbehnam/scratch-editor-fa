@@ -204,7 +204,7 @@ const ActionMenu = ({
             />
             <div className={styles.moreButtonsOuter}>
                 <ul className={styles.moreButtons}>
-                    {(moreButtons || []).map(
+                    {(moreButtons || []).filter(({onClick: onClickItem}) => onClickItem).map(
                         (
                             {
                                 img,
@@ -217,7 +217,6 @@ const ActionMenu = ({
                             },
                             keyId
                         ) => {
-                            const isComingSoon = !onClickItem;
                             const hasFileInput = fileInput;
                             const tooltipId = `${mainTooltipId}-${title}`;
 
@@ -225,9 +224,7 @@ const ActionMenu = ({
                                 <li key={`${tooltipId}-${keyId}`}>
                                     <button
                                         aria-label={title}
-                                        className={classNames(styles.button, styles.moreButton, {
-                                            [styles.comingSoon]: isComingSoon
-                                        })}
+                                        className={classNames(styles.button, styles.moreButton)}
                                         data-for={tooltipId}
                                         data-tip={title}
                                         onClick={handleItemClick(onClickItem)}
@@ -253,9 +250,7 @@ const ActionMenu = ({
                                             />) : null}
                                     </button>
                                     <ReactTooltip
-                                        className={classNames(styles.tooltip, {
-                                            [styles.comingSoonTooltip]: isComingSoon
-                                        })}
+                                        className={styles.tooltip}
                                         effect="solid"
                                         id={tooltipId}
                                         place={tooltipPlace || 'left'}
@@ -278,7 +273,7 @@ ActionMenu.propTypes = {
         PropTypes.shape({
             img: PropTypes.string,
             title: PropTypes.node.isRequired,
-            onClick: PropTypes.func, // Optional, "coming soon" if no callback provided
+            onClick: PropTypes.func, // Items without a callback are not displayed
             fileAccept: PropTypes.string, // Optional, only for file upload
             fileChange: PropTypes.func, // Optional, only for file upload
             fileInput: PropTypes.func, // Optional, only for file upload
