@@ -1,5 +1,4 @@
-import {isRtl} from 'scratch-l10n';
-import editorMessages from 'scratch-l10n/locales/editor-msgs';
+import locales, {editorMessages, isRtl} from '../lib/supported-locales';
 
 const UPDATE_LOCALES = 'scratch-gui/locales/UPDATE_LOCALES';
 const SELECT_LOCALE = 'scratch-gui/locales/SELECT_LOCALE';
@@ -15,6 +14,10 @@ const reducer = function (state, action) {
     if (typeof state === 'undefined') state = initialState;
     switch (action.type) {
     case SELECT_LOCALE:
+        if (!Object.prototype.hasOwnProperty.call(locales, action.locale) ||
+            !Object.prototype.hasOwnProperty.call(state.messagesByLocale, action.locale)) {
+            return state;
+        }
         return Object.assign({}, state, {
             isRtl: isRtl(action.locale),
             locale: action.locale,
@@ -47,7 +50,8 @@ const setLocales = function (localesMessages) {
     };
 };
 const initLocale = function (currentState, locale) {
-    if (Object.prototype.hasOwnProperty.call(currentState.messagesByLocale, locale)) {
+    if (Object.prototype.hasOwnProperty.call(locales, locale) &&
+        Object.prototype.hasOwnProperty.call(currentState.messagesByLocale, locale)) {
         return Object.assign(
             {},
             currentState,

@@ -8,7 +8,9 @@ import VMScratchBlocks from '../lib/blocks';
 import VM from '@scratch/scratch-vm';
 
 import analytics from '../lib/analytics';
+import installAndroidNumberInput from '../lib/android-number-input';
 import log from '../lib/log.js';
+import setBlocksLocale from '../lib/set-blocks-locale';
 import Prompt from './prompt.jsx';
 import BlocksComponent from '../components/blocks/blocks.jsx';
 import ExtensionLibrary from './extension-library.jsx';
@@ -106,7 +108,7 @@ class Blocks extends React.Component {
 
         this.ScratchBlocks.FieldColourSlider.activateEyedropper_ = this.props.onActivateColorPicker;
         this.ScratchBlocks.ScratchProcedures.externalProcedureDefCallback = this.props.onActivateCustomProcedures;
-        this.ScratchBlocks.ScratchMsgs.setLocale(this.props.locale);
+        setBlocksLocale(this.ScratchBlocks, this.props.locale);
 
         const workspaceConfig = defaultsDeep({},
             Blocks.defaultOptions,
@@ -123,6 +125,7 @@ class Blocks extends React.Component {
             }
         );
         this.workspace = this.ScratchBlocks.inject(this.blocks, workspaceConfig);
+        this.androidNumberInputCleanup = installAndroidNumberInput({scratchBlocksObject: this.ScratchBlocks});
         this.workspace.registerToolboxCategoryCallback(
             'VARIABLE',
             this.ScratchBlocks.ScratchVariables.getVariablesCategory
@@ -239,6 +242,7 @@ class Blocks extends React.Component {
         }
     }
     componentWillUnmount () {
+        this.androidNumberInputCleanup();
         this.detachVM();
         // Hide any open field editor and move Blockly focus to the workspace
         // root before disposing. Without this, BlockSvg.dispose() detects the
@@ -267,7 +271,7 @@ class Blocks extends React.Component {
         }, 0);
     }
     setLocale () {
-        this.ScratchBlocks.ScratchMsgs.setLocale(this.props.locale);
+        setBlocksLocale(this.ScratchBlocks, this.props.locale);
         this.props.vm.setLocale(this.props.locale, this.props.messages)
             .then(() => {
                 this.workspace.getFlyout().setRecyclingEnabled(false);

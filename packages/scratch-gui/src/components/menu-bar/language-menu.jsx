@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, {useCallback, useRef} from 'react';
 import {useIntl, FormattedMessage, defineMessage} from 'react-intl';
 import {connect} from 'react-redux';
-import locales from 'scratch-l10n';
+import locales from '../../lib/supported-locales';
 
 import check from './check.svg';
 import {MenuItem, Submenu} from '../menu/menu.jsx';

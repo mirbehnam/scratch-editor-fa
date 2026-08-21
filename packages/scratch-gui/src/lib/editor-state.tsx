@@ -1,6 +1,6 @@
 import {createStore, combineReducers, compose, Store} from 'redux';
 import localesReducer, {initLocale, localesInitialState} from '../reducers/locales';
-import locales from 'scratch-l10n';
+import locales from './supported-locales';
 import {detectLocale} from './detect-locale';
 import {GUIConfig} from '../gui-config';
 import log from './log.js';

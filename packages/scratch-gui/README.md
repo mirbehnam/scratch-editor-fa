@@ -41,20 +41,23 @@ npm start
 
 Then go to [http://localhost:8601/](http://localhost:8601/) - the playground outputs the default GUI component
 
-## Offline Android build
+## Optimized offline build for Android and Windows
 
 This fork can be embedded in an Android `WebView` and run without network access. Library media is loaded from
 `static/assets`, Persian with right-to-left layout is the default, and normal browser loading and downloading remain
-available when the Android bridge is absent.
+available when the Android bridge is absent. The same relative-path output can be served locally on Windows or loaded
+in a desktop WebView.
 
 From the monorepo root, install dependencies, make sure all current library assets are present, and build the GUI:
 
 ```bash
 npm ci
 npm run assets:download --workspace=packages/scratch-gui
-npm run build --workspace=packages/scratch-gui
-npm run build:verify-offline --workspace=packages/scratch-gui
+npm run build:android
 ```
+
+The command creates a minimized production build without source maps or alternate playground pages, then verifies the
+Android bridges, Persian font, and all offline library assets.
 
 Copy the complete contents of `packages/scratch-gui/build/` into the Android app's WebView asset directory, preserving
 the generated directory structure. For example, if the destination is `app/src/main/assets/build/`, load

@@ -6,7 +6,7 @@ import {defineMessages, FormattedMessage, useIntl} from 'react-intl';
 import Box from '../box/box.jsx';
 import ActionMenu from '../action-menu/action-menu.jsx';
 import styles from './stage-selector.css';
-import {isRtl} from 'scratch-l10n';
+import {isRtl} from '../../lib/supported-locales';
 
 import backdropIcon from '../action-menu/icon--backdrop.svg';
 import fileUploadIcon from '../action-menu/icon--file-upload.svg';

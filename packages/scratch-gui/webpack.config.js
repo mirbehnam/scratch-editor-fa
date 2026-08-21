@@ -9,6 +9,8 @@ const ScratchWebpackConfigBuilder = require('scratch-webpack-configuration');
 
 // const STATIC_PATH = process.env.STATIC_PATH || '/static';
 
+const isOptimizedOfflineBuild = process.env.BUILD_TYPE === 'android';
+
 const commonHtmlWebpackPluginOptions = {
     // Google Tag Manager ID
     // Looks like 'GTM-XXXXXXX'
@@ -100,22 +102,23 @@ const baseConfig = new ScratchWebpackConfigBuilder(
             },
             {
                 context: '../../node_modules/@scratch/scratch-vm/dist/web',
-                from: 'extension-worker.{js,js.map}',
+                from: isOptimizedOfflineBuild ? 'extension-worker.js' : 'extension-worker.{js,js.map}',
                 noErrorOnMissing: true
             },
             {
                 context: '../../node_modules/@scratch/scratch-storage/dist/web',
-                from: 'chunks/fetch-worker.*.{js,js.map}',
+                from: isOptimizedOfflineBuild ? 'chunks/fetch-worker.*.js' : 'chunks/fetch-worker.*.{js,js.map}',
                 noErrorOnMissing: true
             },
             {
                 context: '../../node_modules/@scratch/scratch-storage/dist/web',
-                from: 'chunks/vendors-*.{js,js.map}',
+                from: isOptimizedOfflineBuild ? 'chunks/vendors-*.js' : 'chunks/vendors-*.{js,js.map}',
                 noErrorOnMissing: true
             },
             {
                 from: '../../node_modules/@mediapipe/face_detection',
-                to: 'chunks/mediapipe/face_detection'
+                to: 'chunks/mediapipe/face_detection',
+                ...(isOptimizedOfflineBuild ? {globOptions: {ignore: ['**/*.map']}} : {})
             }
         ]
     }));
@@ -232,6 +235,43 @@ const buildConfig = baseConfig.clone()
         ]
     }));
 
+// Build one minimized, relative-path playground for offline WebViews and local Windows hosting.
+const androidBuildConfig = baseConfig.clone()
+    .merge({
+        mode: 'production',
+        devtool: false,
+        entry: {
+            gui: './src/playground/index.jsx'
+        },
+        optimization: {
+            minimize: true
+        },
+        output: {
+            clean: true,
+            path: path.resolve(__dirname, 'build'),
+            publicPath: ''
+        }
+    })
+    .addPlugin(new HtmlWebpackPlugin({
+        ...commonHtmlWebpackPluginOptions,
+        chunks: ['gui'],
+        template: 'src/playground/index.ejs',
+        title: 'Scratch 3.0 GUI'
+    }))
+    .addPlugin(new CopyWebpackPlugin({
+        patterns: [
+            {
+                from: 'static',
+                to: 'static'
+            },
+            {
+                from: 'extensions/**',
+                to: 'static',
+                context: 'src/examples'
+            }
+        ]
+    }));
+
 // Skip building `dist/` unless explicitly requested
 // It roughly doubles build time and isn't needed for `scratch-gui` development
 // If you need non-production `dist/` for local dev, such as for `scratch-www` work, you can run something like:
@@ -242,6 +282,7 @@ let config;
 switch (process.env.BUILD_TYPE) {
 case 'dist': config = distConfig.get(); break;
 case 'dist-standalone': config = distStandaloneConfig.get(); break;
+case 'android': config = androidBuildConfig.get(); break;
 default: config = buildConfig.get(); break;
 }
 

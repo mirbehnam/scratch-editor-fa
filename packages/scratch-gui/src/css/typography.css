@@ -18,7 +18,8 @@ textarea {
 :global(.blocklyFlyoutLabelText),
 :global(.blocklyHtmlInput),
 :global(.blocklyWidgetDiv),
-:global(.blocklyTooltipDiv) {
+:global(.blocklyTooltipDiv),
+:global(.blocklyToolboxCategoryLabel) {
     font-family: "BYekan", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
