@@ -11,9 +11,10 @@ import Divider from '../divider/divider.jsx';
 import Filter from '../filter/filter.jsx';
 import TagButton from '../../containers/tag-button.jsx';
 import {legacyConfig} from '../../legacy-config';
+import {GUIStoragePropType} from '../../gui-config';
+import {buildLibraryAssetUrl} from '../../lib/legacy-library-asset-url';
 import Spinner from '../spinner/spinner.jsx';
 import {CATEGORIES} from '../../../src/lib/libraries/decks/index.jsx';
-import getStaticURL from '../../lib/static-url.js';
 import libraryItemMatchesQuery from '../../lib/libraries/library-item-search.js';
 
 import styles from './library.css';
@@ -86,17 +87,35 @@ const getAssetTypeForFileExtension = function (fileExtension) {
 };
 
 /**
+ * Build the URL a library thumbnail is fetched from. Storage implementations decide how
+ * assets are addressed, so the host and the path both come from there. Implementations that
+ * predate `getLibraryAssetUrl` get the public Scratch asset service.
+ * @param {GUIStorage} [storage] - the active storage implementation.
+ * @param {string} assetId - the md5 of the asset.
+ * @param {string} dataFormat - the asset's file extension.
+ * @returns {string} - the URL to fetch the thumbnail from.
+ */
+const getLibraryAssetUrl = function (storage, assetId, dataFormat) {
+    if (!storage || typeof storage.getLibraryAssetUrl !== 'function') {
+        return buildLibraryAssetUrl(assetId, dataFormat);
+    }
+
+    return storage.getLibraryAssetUrl(assetId, dataFormat);
+};
+
+/**
  * Figure out one or more icon(s) for a library item.
  * If it's an animated thumbnail, this will return an array of `imageSource`.
  * Otherwise it'll return just one `imageSource`.
  * @param {object} item - either a library item or one of a library item's costumes.
  *   The latter is used internally as part of processing an animated thumbnail.
+ * @param {GUIStorage} [storage] - the active storage implementation.
  * @returns {LibraryItem.PropTypes.icons} - an `imageSource` or array of them
  */
-const getItemIcons = function (item) {
+const getItemIcons = function (item, storage) {
     const costumes = (item.json && item.json.costumes) || item.costumes;
     if (costumes) {
-        return costumes.map(getItemIcons);
+        return costumes.map(costume => getItemIcons(costume, storage));
     }
 
     if (item.rawURL) {
@@ -109,8 +128,7 @@ const getItemIcons = function (item) {
         return {
             assetId: item.assetId,
             assetType: getAssetTypeForFileExtension(item.dataFormat),
-            assetServiceUri: `https://cdn.assets.scratch.mit.edu/internalapi/asset/${item.assetId}.${item.dataFormat}/get/`,
-            localUri: getStaticURL(`assets/${item.assetId}.${item.dataFormat}`)
+            assetServiceUri: getLibraryAssetUrl(storage, item.assetId, item.dataFormat)
         };
     }
 
@@ -120,8 +138,7 @@ const getItemIcons = function (item) {
         return {
             assetId: assetId,
             assetType: getAssetTypeForFileExtension(fileExtension),
-            assetServiceUri: `https://cdn.assets.scratch.mit.edu/internalapi/asset/${md5ext}/get/`,
-            localUri: getStaticURL(`assets/${md5ext}`)
+            assetServiceUri: getLibraryAssetUrl(storage, assetId, fileExtension)
         };
     }
 };
@@ -278,7 +295,7 @@ class LibraryComponent extends React.Component {
     }
     renderElement (data) {
         const key = this.constructKey(data);
-        const icons = getItemIcons(data);
+        const icons = getItemIcons(data, this.props.storage);
         return (<LibraryItem
             bluetoothRequired={data.bluetoothRequired}
             collaborator={data.collaborator}
@@ -427,6 +444,7 @@ LibraryComponent.propTypes = {
     onRequestClose: PropTypes.func,
     setStopHandler: PropTypes.func,
     showPlayButton: PropTypes.bool,
+    storage: GUIStoragePropType,
     tags: PropTypes.arrayOf(PropTypes.shape(TagButton.propTypes)),
     title: PropTypes.string.isRequired
 };

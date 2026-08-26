@@ -15,7 +15,7 @@ import CloudProvider from './cloud-provider';
 import saveProjectToServer from '../lib/save-project-to-server';
 import getStaticURL from './static-url';
 
-const getAssetFileName = (asset: {assetId?: AssetId; dataFormat?: DataFormat}) => {
+const getAssetFileName = (asset: {assetId?: AssetId; dataFormat?: string}) => {
     const assetId = String(asset.assetId);
     const extension = `.${asset.dataFormat}`;
     return assetId.endsWith(extension) ? assetId : `${assetId}${extension}`;
@@ -100,6 +100,10 @@ export class LegacyStorage implements GUIStorage {
 
     setAssetHost (host: string): void {
         this.assetHost = host;
+    }
+
+    getLibraryAssetUrl (assetId: string, dataFormat: string): string {
+        return getStaticURL(`assets/${getAssetFileName({assetId, dataFormat})}`);
     }
 
     setTranslatorFunction (translator: TranslatorFunction): void {

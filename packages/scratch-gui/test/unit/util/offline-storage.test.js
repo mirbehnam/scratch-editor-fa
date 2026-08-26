@@ -11,6 +11,13 @@ describe('offline storage helper', () => {
         global.Request = NativeRequest;
     });
 
+    test('builds library thumbnail URLs from bundled assets', () => {
+        const storage = new LegacyStorage();
+
+        expect(storage.getLibraryAssetUrl('asset-id', 'svg'))
+            .toBe('http://localhost/static/assets/asset-id.svg');
+    });
+
     test('loads a bundled asset without using a cached response', async () => {
         const storage = new LegacyStorage().scratchStorage;
         const data = new Uint8Array([1, 2, 3]);
