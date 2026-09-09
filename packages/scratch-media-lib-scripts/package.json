@@ -1,6 +1,6 @@
 {
   "name": "@scratch/scratch-media-lib-scripts",
-  "version": "15.1.0",
+  "version": "15.1.1",
   "description": "Build scripts for Scratch media library assets",
   "main": "index.js",
   "bin": {
@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "eslint": "9.39.5",
-    "eslint-config-scratch": "14.1.61",
-    "jest": "30.4.2",
+    "eslint-config-scratch": "14.1.66",
+    "jest": "30.5.1",
     "jest-junit": "16.0.0",
     "prettier": "3.9.6"
   },
