@@ -5,7 +5,6 @@ import {useIntl, FormattedMessage, defineMessage} from 'react-intl';
 import {connect} from 'react-redux';
 import useMenuNavigation from '../../hooks/use-menu-navigation';
 
-import LanguageMenu from './language-menu.jsx';
 import MenuBarMenu from './menu-bar-menu.jsx';
 import {MenuSection} from '../menu/menu.jsx';
 import PreferenceMenu from './preference-menu.jsx';
@@ -32,7 +31,6 @@ const settingsMenuAriaMessage = defineMessage({
 const enabledColorModes = [DEFAULT_MODE, HIGH_CONTRAST_MODE];
 
 const SettingsMenu = ({
-    canChangeLanguage,
     canChangeColorMode,
     canChangeTheme,
     hasActiveMembership,
@@ -97,7 +95,6 @@ const SettingsMenu = ({
             onRequestClose={handleOnClose}
         >
             <MenuSection>
-                {canChangeLanguage && <LanguageMenu depth={depth + 1} />}
                 {canChangeTheme &&
                     // TODO: Consider always showing the theme menu, even if there is a single available theme
                     availableThemesLength > 1 &&
@@ -132,7 +129,6 @@ const SettingsMenu = ({
 };
 
 SettingsMenu.propTypes = {
-    canChangeLanguage: PropTypes.bool,
     canChangeColorMode: PropTypes.bool,
     canChangeTheme: PropTypes.bool,
     hasActiveMembership: PropTypes.bool,

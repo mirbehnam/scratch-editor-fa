@@ -66,6 +66,31 @@ describe('MenuBar Component', () => {
         expect(queryByText('scratch-cat')).toBeNull();
     });
 
+    test('renders language as a top-level button before the file menu', () => {
+        const {getByRole} = renderWithIntl(getComponent({
+            canChangeLanguage: true,
+            canManageFiles: true
+        }));
+        const languageButton = getByRole('button', {name: 'Language menu'});
+        const fileButton = getByRole('button', {name: 'File menu'});
+
+        expect(languageButton.parentElement).toBe(fileButton.parentElement);
+        expect(languageButton.compareDocumentPosition(fileButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    test('opens a language dialog and closes it after selecting a language', () => {
+        const {getByRole, queryByRole} = renderWithIntl(getComponent({canChangeLanguage: true}));
+
+        fireEvent.click(getByRole('button', {name: 'Language menu'}));
+        expect(getByRole('dialog', {name: 'Language'})).toBeTruthy();
+        expect(getByRole('button', {name: 'فارسی'})).toBeTruthy();
+        expect(getByRole('button', {name: 'English'})).toBeTruthy();
+        expect(getByRole('button', {name: 'العربية'})).toBeTruthy();
+
+        fireEvent.click(getByRole('button', {name: 'English'}));
+        expect(queryByRole('dialog', {name: 'Language'})).toBeNull();
+    });
+
     describe('triggering About button handler', () => {
         test('clicking on About button calls the handler', () => {
             const onClickAbout = jest.fn();

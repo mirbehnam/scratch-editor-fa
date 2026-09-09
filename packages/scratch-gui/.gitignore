@@ -12,6 +12,7 @@ npm-*
 
 # Build
 /build
+/build-windows
 /dist
 /.opt-in
 

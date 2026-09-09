@@ -1,20 +1,17 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, {useCallback, useRef} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useIntl, FormattedMessage, defineMessage} from 'react-intl';
 import {connect} from 'react-redux';
 import locales from '../../lib/supported-locales';
 
 import check from './check.svg';
-import {MenuItem, Submenu} from '../menu/menu.jsx';
+import Modal from '../modal/modal.jsx';
 import languageIcon from '../language-selector/language-icon.svg';
 import {selectLocale} from '../../reducers/locales.js';
-import useMenuNavigation from '../../hooks/use-menu-navigation';
 
-import stylesSettingsMenu from './settings-menu.css';
-import stylesLanguageMenu from './language-menu.css';
-
-import dropdownCaret from './dropdown-caret.svg';
+import menuBarStyles from './menu-bar.css';
+import styles from './language-menu.css';
 
 const languageMenu = defineMessage({
     id: 'gui.aria.languageMenu',
@@ -25,105 +22,82 @@ const languageMenu = defineMessage({
 const LanguageMenu = ({
     currentLocale,
     isRtl,
-    onChangeLanguage,
-    depth
+    onChangeLanguage
 }) => {
     const intl = useIntl();
+    const [isOpen, setIsOpen] = useState(false);
 
-    const selectedRef = useRef(null);
-
-    const {
-        isExpanded,
-        handleKeyDown,
-        handleKeyDownOpenMenu,
-        handleOnOpen,
-        menuRef
-    } = useMenuNavigation({
-        depth: depth ?? 1,
-        defaultIndexOnOpen: (Object.keys(locales).indexOf(currentLocale)),
-        isRtl
-    });
-
-    const setRef = useCallback(component => {
-        selectedRef.current = component;
+    const handleOpen = useCallback(() => {
+        setIsOpen(true);
     }, []);
-
-    const handleMouseOver = useCallback(() => {
-        // If we are using hover rather than clicks for submenus, scroll the selected option into view
-        if (isExpanded() && selectedRef.current) {
-            selectedRef.current.scrollIntoView({block: 'center'});
-        }
-    }, [isExpanded]);
+    const handleClose = useCallback(() => {
+        setIsOpen(false);
+    }, []);
+    const handleChangeLanguage = useCallback(locale => {
+        setIsOpen(false);
+        onChangeLanguage(locale);
+    }, [onChangeLanguage]);
 
     return (
-        <MenuItem
-            ref={menuRef}
-            isExpanded={isExpanded()}
-            ariaLabel={intl.formatMessage(languageMenu)}
-            onKeyDown={handleKeyDown}
-            isDataMenuItemWrapper
-        >
+        <React.Fragment>
             <button
-                className={stylesSettingsMenu.option}
-                onClick={handleOnOpen}
-                onMouseOver={handleMouseOver}
-                data-menu-item
+                aria-label={intl.formatMessage(languageMenu)}
+                className={classNames(menuBarStyles.menuBarItem, menuBarStyles.hoverable)}
+                onClick={handleOpen}
             >
                 <img
-                    className={stylesSettingsMenu.icon}
+                    className={styles.languageIcon}
                     src={languageIcon}
                 />
-                <span className={stylesSettingsMenu.submenuLabel}>
+                <span className={menuBarStyles.collapsibleLabel}>
                     <FormattedMessage
                         defaultMessage="Language"
-                        description="Language sub-menu"
+                        description="Button to open the language dialog"
                         id="gui.menuBar.language"
                     />
                 </span>
-                <img
-                    className={stylesSettingsMenu.expandCaret}
-                    src={dropdownCaret}
-                />
             </button>
-            <Submenu
-                className={stylesLanguageMenu.languageSubmenu}
-                place={isRtl ? 'left' : 'right'}
+            {isOpen && <Modal
+                className={styles.languageDialog}
+                contentLabel={intl.formatMessage({
+                    id: 'gui.menuBar.language',
+                    defaultMessage: 'Language'
+                })}
+                isRtl={isRtl}
+                onRequestClose={handleClose}
             >
-                {
-                    Object.keys(locales)
-                        .map(locale => {
-                            const isSelected = currentLocale === locale;
-
-                            return (<MenuItem
-                                key={locale}
-                                className={stylesLanguageMenu.languageMenuItem}
-                                // eslint-disable-next-line react/jsx-no-bind
-                                onClick={() => onChangeLanguage(locale)}
-                                isDataMenuItem
-                                onParentKeyDown={handleKeyDownOpenMenu}
-                                isSelected={isSelected}
-                            >
-                                <img
-                                    className={classNames(stylesSettingsMenu.check, {
-                                        [stylesSettingsMenu.selected]: isSelected
-                                    })}
-                                    src={check}
-                                    {...(isSelected && {ref: setRef})}
-                                />
-                                {locales[locale].name}
-                            </MenuItem>);
-                        })
-                }
-            </Submenu>
-        </MenuItem>
+                <div className={styles.languageList}>
+                    {Object.keys(locales).map(locale => {
+                        const isSelected = currentLocale === locale;
+                        return (<button
+                            key={locale}
+                            aria-pressed={isSelected}
+                            className={classNames(styles.languageOption, {
+                                [styles.selectedOption]: isSelected
+                            })}
+                            // eslint-disable-next-line react/jsx-no-bind
+                            onClick={() => handleChangeLanguage(locale)}
+                        >
+                            <img
+                                aria-hidden
+                                className={classNames(styles.check, {
+                                    [styles.selectedCheck]: isSelected
+                                })}
+                                src={check}
+                            />
+                            <span>{locales[locale].name}</span>
+                        </button>);
+                    })}
+                </div>
+            </Modal>}
+        </React.Fragment>
     );
 };
 
 LanguageMenu.propTypes = {
     currentLocale: PropTypes.string,
     isRtl: PropTypes.bool,
-    onChangeLanguage: PropTypes.func,
-    depth: PropTypes.number
+    onChangeLanguage: PropTypes.func
 };
 
 const mapStateToProps = state => ({

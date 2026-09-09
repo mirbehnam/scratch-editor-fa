@@ -21,6 +21,7 @@ import AuthorInfo from './author-info.jsx';
 import LoginDropdown from './login-dropdown.jsx';
 import MenuBarHOC from '../../containers/menu-bar-hoc.jsx';
 import SettingsMenu from './settings-menu.jsx';
+import LanguageMenu from './language-menu.jsx';
 import FileMenu from './file-menu.jsx';
 import EditMenu from './edit-menu.jsx';
 import ModeMenu from './mode-menu.jsx';
@@ -269,9 +270,9 @@ class MenuBar extends React.Component {
                                 src={getScratchLogo(this.props.platform)}
                             />
                         </button>
-                        {(this.props.canChangeColorMode || this.props.canChangeLanguage || this.props.canChangeTheme) &&
+                        {this.props.canChangeLanguage && <LanguageMenu />}
+                        {(this.props.canChangeColorMode || this.props.canChangeTheme) &&
                         (<SettingsMenu
-                            canChangeLanguage={this.props.canChangeLanguage}
                             canChangeColorMode={this.props.canChangeColorMode}
                             canChangeTheme={this.props.canChangeTheme}
                             hasActiveMembership={this.props.hasActiveMembership}
