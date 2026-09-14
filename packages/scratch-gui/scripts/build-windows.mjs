@@ -148,17 +148,23 @@ const prepareArchitecture = async (architecture, version) => {
     await mkdir(appDirectory, {recursive: true});
     await cp(buildDirectory, path.join(appDirectory, 'build'), {recursive: true});
     await cp(path.join(desktopDirectory, 'main.cjs'), path.join(appDirectory, 'main.cjs'));
+    await cp(path.join(desktopDirectory, 'window-config.cjs'), path.join(appDirectory, 'window-config.cjs'));
     await cp(path.join(desktopDirectory, 'icon.png'), path.join(appDirectory, 'icon.png'));
     await writeFile(path.join(appDirectory, 'package.json'), `${JSON.stringify({
         name: 'scratch-fa-desktop',
-        productName: 'Scratch فارسی',
+        productName: 'Scratch farsi',
         version,
         main: 'main.cjs'
     }, null, 2)}\n`);
     await writeFile(path.join(architectureDirectory, 'VERSION.txt'), `${version}\n`);
     await rename(path.join(architectureDirectory, 'electron.exe'), path.join(architectureDirectory, productExecutable));
     const executablePath = path.join(architectureDirectory, productExecutable);
-    run(rceditPath, [executablePath, '--set-icon', architecture.executableIcon]);
+    run(rceditPath, [
+        executablePath,
+        '--set-icon', architecture.executableIcon,
+        '--set-version-string', 'ProductName', 'Scratch farsi',
+        '--set-version-string', 'FileDescription', 'Scratch farsi'
+    ]);
 
     const sourceFiles = await listFiles(buildDirectory);
     const packagedFiles = await listFiles(path.join(appDirectory, 'build'));

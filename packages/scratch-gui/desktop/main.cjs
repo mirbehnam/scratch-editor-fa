@@ -1,7 +1,8 @@
-/* global __dirname, process */
+/* global __dirname, console, process */
 
-const {app, BrowserWindow, session, shell} = require('electron');
+const {app, BrowserWindow, dialog, session, shell} = require('electron');
 const path = require('path');
+const {APP_NAME, WINDOW_TITLE, createCloseHandler} = require('./window-config.cjs');
 
 const createWindow = () => {
     const mainWindow = new BrowserWindow({
@@ -10,7 +11,7 @@ const createWindow = () => {
         minWidth: 960,
         minHeight: 640,
         show: false,
-        title: 'Scratch فارسی',
+        title: WINDOW_TITLE,
         icon: path.join(__dirname, 'icon.png'),
         backgroundColor: '#855cd6',
         webPreferences: {
@@ -22,6 +23,11 @@ const createWindow = () => {
 
     mainWindow.setMenuBarVisibility(false);
     mainWindow.once('ready-to-show', () => mainWindow.show());
+    mainWindow.webContents.on('page-title-updated', event => {
+        event.preventDefault();
+        mainWindow.setTitle(WINDOW_TITLE);
+    });
+    mainWindow.on('close', createCloseHandler({app, dialog, logger: console, mainWindow}));
     mainWindow.webContents.setWindowOpenHandler(({url}) => {
         if (url.startsWith('https://') || url.startsWith('http://')) {
             shell.openExternal(url);
@@ -37,6 +43,7 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, 'build', 'index.html'));
 };
 
+app.setName(APP_NAME);
 app.setAppUserModelId('ir.behenamapp.scratch.fa');
 app.whenReady().then(() => {
     session.defaultSession.on('will-download', (_event, item) => {

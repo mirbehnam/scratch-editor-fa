@@ -19,11 +19,11 @@
 
 [Setup]
 AppId={{B5967A3C-2787-4FF5-A612-E523F37A130C}
-AppName=Scratch فارسی
+AppName=Scratch farsi
 AppVersion={#AppVersion}
 AppPublisher=Scratch Foundation and contributors
-DefaultDirName={localappdata}\Programs\Scratch فارسی
-DefaultGroupName=Scratch فارسی
+DefaultDirName={localappdata}\Programs\Scratch farsi
+DefaultGroupName=Scratch farsi
 DisableProgramGroupPage=yes
 OutputDir={#OutputDir}
 OutputBaseFilename={#OutputBaseFilename}
@@ -48,11 +48,11 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\Scratch فارسی"; Filename: "{app}\ScratchFA.exe"
-Name: "{autodesktop}\Scratch فارسی"; Filename: "{app}\ScratchFA.exe"; Tasks: desktopicon
+Name: "{autoprograms}\Scratch farsi"; Filename: "{app}\ScratchFA.exe"
+Name: "{autodesktop}\Scratch farsi"; Filename: "{app}\ScratchFA.exe"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional shortcuts:"
 
 [Run]
-Filename: "{app}\ScratchFA.exe"; Description: "Launch Scratch فارسی"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\ScratchFA.exe"; Description: "Launch Scratch farsi"; Flags: nowait postinstall skipifsilent

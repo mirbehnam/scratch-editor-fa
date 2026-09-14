@@ -3,9 +3,12 @@ import defaultsDeep from 'lodash.defaultsdeep';
 import PropTypes from 'prop-types';
 import React from 'react';
 import CustomProceduresComponent from '../components/custom-procedures/custom-procedures.jsx';
+import {PLATFORM} from '../lib/platform.js';
 import {getColorsForMode, colorModeMap} from '../lib/settings/color-mode';
 import * as ScratchBlocks from 'scratch-blocks';
 import {connect} from 'react-redux';
+
+const shouldAutoFocusEditor = platform => platform !== PLATFORM.ANDROID;
 
 class CustomProcedures extends React.Component {
     constructor (props) {
@@ -121,10 +124,12 @@ class CustomProcedures extends React.Component {
         this.mutationRoot.initSvg();
         this.mutationRoot.render();
         this.setState({warp: this.mutationRoot.getWarp()});
-        // Allow the initial events to run to position this block, then focus.
-        setTimeout(() => {
-            this.mutationRoot.focusLastEditor_();
-        });
+        if (shouldAutoFocusEditor(this.props.platform)) {
+            // Allow the initial events to run to position this block, then focus.
+            setTimeout(() => {
+                this.mutationRoot.focusLastEditor_();
+            });
+        }
     }
     handleCancel () {
         this.props.onRequestClose();
@@ -175,6 +180,7 @@ CustomProcedures.propTypes = {
     isRtl: PropTypes.bool,
     mutator: PropTypes.instanceOf(Element),
     onRequestClose: PropTypes.func.isRequired,
+    platform: PropTypes.oneOf(Object.values(PLATFORM)),
     colorMode: PropTypes.oneOf(Object.keys(colorModeMap)),
     options: PropTypes.shape({
         media: PropTypes.string,
@@ -202,14 +208,18 @@ CustomProcedures.defaultOptions = {
 };
 
 CustomProcedures.defaultProps = {
-    options: CustomProcedures.defaultOptions
+    options: CustomProcedures.defaultOptions,
+    platform: PLATFORM.WEB
 };
 
 const mapStateToProps = state => ({
     isRtl: state.locales.isRtl,
-    mutator: state.scratchGui.customProcedures.mutator
+    mutator: state.scratchGui.customProcedures.mutator,
+    platform: state.scratchGui.platform.platform
 });
 
 export default connect(
     mapStateToProps
 )(CustomProcedures);
+
+export {shouldAutoFocusEditor};
