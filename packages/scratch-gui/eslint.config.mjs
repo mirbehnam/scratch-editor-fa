@@ -110,6 +110,7 @@ export default eslintConfigScratch.defineConfig(
     },
     globalIgnores([
         'build/**/*',
+        'build-windows/**/*',
         'dist/**/*',
         'node_modules/**/*'
     ])

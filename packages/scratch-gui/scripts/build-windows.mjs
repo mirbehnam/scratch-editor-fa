@@ -13,6 +13,9 @@ import {existsSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import retryModule from './run-with-retry.cjs';
+
+const {runWithRetry} = retryModule;
 
 const electronVersion = '42.11.2';
 const rceditVersion = '2.0.0';
@@ -159,7 +162,7 @@ const prepareArchitecture = async (architecture, version) => {
     await writeFile(path.join(architectureDirectory, 'VERSION.txt'), `${version}\n`);
     await rename(path.join(architectureDirectory, 'electron.exe'), path.join(architectureDirectory, productExecutable));
     const executablePath = path.join(architectureDirectory, productExecutable);
-    run(rceditPath, [
+    await runWithRetry(rceditPath, [
         executablePath,
         '--set-icon', architecture.executableIcon,
         '--set-version-string', 'ProductName', 'Scratch farsi',
