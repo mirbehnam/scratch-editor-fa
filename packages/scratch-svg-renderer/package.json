@@ -1,6 +1,6 @@
 {
   "name": "@scratch/scratch-svg-renderer",
-  "version": "15.1.1",
+  "version": "15.2.0",
   "description": "SVG renderer for Scratch",
   "keywords": [],
   "homepage": "https://github.com/scratchfoundation/scratch-svg-renderer#readme",
@@ -20,7 +20,12 @@
       "node": "./dist/node/scratch-svg-renderer.js",
       "default": "./src/index.js"
     },
-    "./sandbox": "./src/sandbox/index.js"
+    "./sandbox": {
+      "webpack": "./src/sandbox/index.js",
+      "browser": "./dist/web/scratch-svg-renderer.js",
+      "node": "./dist/node/scratch-svg-renderer.js",
+      "default": "./dist/web/scratch-svg-renderer.js"
+    }
   },
   "main": "./dist/node/scratch-svg-renderer.js",
   "browser": "./dist/web/scratch-svg-renderer.js",
@@ -71,12 +76,12 @@
     "canvas": "3.2.3",
     "copy-webpack-plugin": "6.4.1",
     "eslint": "9.39.5",
-    "eslint-config-scratch": "14.1.72",
+    "eslint-config-scratch": "14.1.85",
     "globals": "16.5.0",
     "jsdom": "13.2.0",
     "mkdirp": "2.1.6",
     "rimraf": "3.0.2",
-    "scratch-render-fonts": "1.0.252",
+    "scratch-render-fonts": "1.0.253",
     "scratch-webpack-configuration": "3.1.2",
     "tap": "21.8.0",
     "webpack": "5.111.1",
@@ -84,6 +89,6 @@
     "webpack-dev-server": "5.2.6"
   },
   "peerDependencies": {
-    "scratch-render-fonts": "1.0.252"
+    "scratch-render-fonts": "1.0.253"
   }
 }

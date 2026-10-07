@@ -1,5 +1,11 @@
 # Agent Guide: scratch-editor
 
+This fork's `my-develop` branch also has required Android, Windows, Persian, and
+offline behavior. Before merging an upstream update or changing its build,
+storage, localization, or editor UI, read [CUSTOMIZATION_INVARIANTS.md](CUSTOMIZATION_INVARIANTS.md)
+and preserve its contracts. [MY_DEVELOP_CHANGES.md](MY_DEVELOP_CHANGES.md) records
+the detailed history and build commands.
+
 ## AI-assisted development policy
 
 See [CONTRIBUTING.AI.md](https://github.com/scratchfoundation/.github/blob/main/CONTRIBUTING.AI.md) for Scratch's

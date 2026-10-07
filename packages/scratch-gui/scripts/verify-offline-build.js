@@ -45,6 +45,21 @@ if (!includesPersianFont) {
 }
 
 if (verifyOptimizedBuild) {
+    const requiredSandboxFiles = [
+        [buildAssetDirectory, 'runner.'],
+        [buildAssetDirectory, 'measure-svg.'],
+        [buildAssetDirectory, 'paper-import.'],
+        [buildAssetDirectory, 'paper-core.min.'],
+        [path.join(buildDirectory, 'chunks'), 'paper-url.'],
+        [path.join(buildDirectory, 'chunks'), 'paper-source.']
+    ];
+    for (const [directory, prefix] of requiredSandboxFiles) {
+        const script = fs.readdirSync(directory).find(file => file.startsWith(prefix) && file.endsWith('.js'));
+        if (!script || fs.statSync(path.join(directory, script)).size === 0) {
+            throw new Error(`Optimized offline build is missing the ${prefix} sandbox script`);
+        }
+    }
+
     const filesToVisit = [buildDirectory];
     const sourceMaps = [];
     while (filesToVisit.length > 0) {
