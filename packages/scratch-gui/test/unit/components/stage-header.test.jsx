@@ -29,7 +29,7 @@ describe('StageHeader Component', () => {
     const onShowThumbnailError = jest.fn();
     const onUpdateProjectThumbnail = jest.fn();
 
-    const getComponent = () => (
+    const getComponent = (props = {}) => (
         <Provider store={store}>
             <StageHeader
                 isFullScreen={false}
@@ -48,6 +48,7 @@ describe('StageHeader Component', () => {
                 projectId={'12345'}
                 showBranding={false}
                 vm={new VM()}
+                {...props}
             />
         </Provider>
     );
@@ -65,6 +66,13 @@ describe('StageHeader Component', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         localStorage.clear();
+    });
+
+    test('full-screen logo links to the Farsi Scratch website', () => {
+        const {container} = renderWithIntl(getComponent({isFullScreen: true, showBranding: true}));
+
+        expect(container.querySelector('a[href="https://scratch.behnamapps.ir/"] img[alt="Scratch"]'))
+            .not.toBeNull();
     });
 
     test('a capture failure re-enables the thumbnail button and reports the error', () => {

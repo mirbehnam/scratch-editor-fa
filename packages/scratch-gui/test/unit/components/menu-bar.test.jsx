@@ -51,6 +51,14 @@ describe('MenuBar Component', () => {
         expect(button).toBeFalsy();
     });
 
+    test('home button calls its navigation handler', () => {
+        const onClickLogo = jest.fn();
+        const {getByRole} = renderWithIntl(getComponent({onClickLogo}));
+
+        fireEvent.click(getByRole('button', {name: 'Home'}));
+        expect(onClickLogo).toHaveBeenCalledTimes(1);
+    });
+
     test('menu bar with an About handler has an About button', () => {
         const onClickAbout = jest.fn();
         const {container} = renderWithIntl(getComponent({onClickAbout}));

@@ -5,11 +5,12 @@ import {compose} from 'redux';
 import AppStateHOC from '../lib/app-state-hoc.jsx';
 import GUI from '../containers/gui.jsx';
 import HashParserHOC from '../lib/hash-parser-hoc.jsx';
+import HOME_URL from '../lib/home-url.js';
 import log from '../lib/log.js';
 import {PLATFORM} from '../lib/platform.js';
 
 const onClickLogo = () => {
-    window.location = 'https://scratch.mit.edu';
+    window.location = HOME_URL;
 };
 
 const handleTelemetryModalCancel = () => {
@@ -69,6 +70,7 @@ export default appTarget => {
         simulateScratchDesktop ?
             <WrappedGui
                 canEditTitle
+                onClickLogo={onClickLogo}
                 platform={PLATFORM.DESKTOP}
                 showTelemetryModal
                 canSave={false}

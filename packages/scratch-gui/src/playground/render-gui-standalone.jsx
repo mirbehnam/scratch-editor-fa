@@ -1,11 +1,12 @@
 import {EditorState, createStandaloneRoot, setAppElement} from '../index-standalone';
 import HashParserHOC from '../lib/hash-parser-hoc.jsx';
+import HOME_URL from '../lib/home-url.js';
 import {PLATFORM} from '../lib/platform.js';
 
 import log from '../lib/log.js';
 
 const onClickLogo = () => {
-    window.location = 'https://scratch.mit.edu';
+    window.location = HOME_URL;
 };
 
 const handleTelemetryModalCancel = () => {
@@ -61,6 +62,7 @@ export default appTarget => {
     if (simulateScratchDesktop) {
         gui.render({
             canEditTitle: true,
+            onClickLogo,
             platform: PLATFORM.DESKTOP,
             showTelemetryModal: true,
             canSave: false,

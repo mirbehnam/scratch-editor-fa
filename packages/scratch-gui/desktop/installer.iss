@@ -24,14 +24,18 @@ AppVersion={#AppVersion}
 AppPublisher=Scratch Foundation and contributors
 DefaultDirName={localappdata}\Programs\Scratch farsi
 DefaultGroupName=Scratch farsi
+DisableDirPage=yes
+DisableFinishedPage=yes
 DisableProgramGroupPage=yes
+DisableReadyPage=yes
+DisableStartupPrompt=yes
+DisableWelcomePage=yes
 OutputDir={#OutputDir}
 OutputBaseFilename={#OutputBaseFilename}
 Compression=lzma2/fast
 SolidCompression=yes
 SetupIconFile={#IconFile}
 PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
 SetupLogging=yes
 UninstallDisplayIcon={app}\ScratchFA.exe
 VersionInfoVersion={#AppVersion}
@@ -49,10 +53,7 @@ Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs 
 
 [Icons]
 Name: "{autoprograms}\Scratch farsi"; Filename: "{app}\ScratchFA.exe"
-Name: "{autodesktop}\Scratch farsi"; Filename: "{app}\ScratchFA.exe"; Tasks: desktopicon
-
-[Tasks]
-Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional shortcuts:"
+Name: "{autodesktop}\Scratch farsi"; Filename: "{app}\ScratchFA.exe"
 
 [Run]
-Filename: "{app}\ScratchFA.exe"; Description: "Launch Scratch farsi"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\ScratchFA.exe"; Description: "Launch Scratch farsi"; Flags: nowait skipifsilent
