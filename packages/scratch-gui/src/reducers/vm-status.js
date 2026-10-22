@@ -1,8 +1,10 @@
 const SET_RUNNING_STATE = 'scratch-gui/vm-status/SET_RUNNING_STATE';
 const SET_TURBO_STATE = 'scratch-gui/vm-status/SET_TURBO_STATE';
 const SET_STARTED_STATE = 'scratch-gui/vm-status/SET_STARTED_STATE';
+const SET_PLAY_SESSION = 'scratch-gui/vm-status/SET_PLAY_SESSION';
 
 const initialState = {
+    playSessionActive: false,
     running: false,
     started: false,
     turbo: false
@@ -11,6 +13,8 @@ const initialState = {
 const reducer = function (state, action) {
     if (typeof state === 'undefined') state = initialState;
     switch (action.type) {
+    case SET_PLAY_SESSION:
+        return {...state, playSessionActive: action.active};
     case SET_STARTED_STATE:
         return Object.assign({}, state, {
             started: action.started
@@ -50,10 +54,13 @@ const setTurboState = function (turbo) {
     };
 };
 
+const setPlaySession = active => ({type: SET_PLAY_SESSION, active});
+
 export {
     reducer as default,
     initialState as vmStatusInitialState,
     setRunningState,
+    setPlaySession,
     setStartedState,
     setTurboState
 };

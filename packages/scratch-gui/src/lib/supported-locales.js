@@ -22,9 +22,11 @@ const mergeEditorMessages = (interfaceMessages, extensionMessages, paintEditorMe
 
 const localeMessageOverrides = {
     ar: {
+        'gui.menuBar.preventStageDrag': 'منع سحب الكائنات أثناء التشغيل',
         'gui.sharedMessages.loadFromComputerTitle': 'تحميل من جهاز الكمبيوتر'
     },
     fa: {
+        'gui.menuBar.preventStageDrag': 'جلوگیری از کشیدن شکلک‌ها هنگام اجرا',
         'gui.sharedMessages.loadFromComputerTitle': 'بارگذاری از رایانه'
     }
 };

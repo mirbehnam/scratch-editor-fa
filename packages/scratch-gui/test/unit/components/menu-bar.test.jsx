@@ -51,6 +51,29 @@ describe('MenuBar Component', () => {
         expect(button).toBeFalsy();
     });
 
+    test('Android offline settings offer the touch drag lock and save the choice', () => {
+        const previousBuild = process.env.SCRATCH_ANDROID_TOUCH;
+        process.env.SCRATCH_ANDROID_TOUCH = 'true';
+        const userAgent = jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Android');
+        try {
+            const {getByRole} = renderWithIntl(getComponent({canChangeColorMode: true}));
+            fireEvent.click(getByRole('button', {name: 'Settings menu'}));
+            const option = getByRole('menuitemcheckbox', {name: 'Prevent dragging sprites while playing'});
+            expect(option.getAttribute('aria-checked')).toBe('false');
+            fireEvent.click(option);
+            expect(localStorage.getItem('scratch.android.preventStageDrag')).toBe('true');
+            expect(store.getActions()).toContainEqual({
+                type: 'scratch-gui/settings/SET_PREVENT_STAGE_DRAG', enabled: true
+            });
+        } finally {
+            userAgent.mockRestore();
+            if (typeof previousBuild === 'undefined') delete process.env.SCRATCH_ANDROID_TOUCH;
+            else process.env.SCRATCH_ANDROID_TOUCH = previousBuild;
+            localStorage.clear();
+            store.clearActions();
+        }
+    });
+
     test('home button calls its navigation handler', () => {
         const onClickLogo = jest.fn();
         const {getByRole} = renderWithIntl(getComponent({onClickLogo}));

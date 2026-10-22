@@ -1,19 +1,21 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {useIntl, FormattedMessage, defineMessage} from 'react-intl';
 import {connect} from 'react-redux';
 import useMenuNavigation from '../../hooks/use-menu-navigation';
 
 import MenuBarMenu from './menu-bar-menu.jsx';
-import {MenuSection} from '../menu/menu.jsx';
+import {MenuSection, MenuItem} from '../menu/menu.jsx';
 import PreferenceMenu from './preference-menu.jsx';
 
 import {DEFAULT_MODE, HIGH_CONTRAST_MODE, colorModeMap} from '../../lib/settings/color-mode/index.js';
 import {themeMap} from '../../lib/settings/theme/index.js';
 import {persistColorMode} from '../../lib/settings/color-mode/persistence.js';
 import {persistTheme} from '../../lib/settings/theme/persistence.js';
-import {setColorMode, setTheme} from '../../reducers/settings.js';
+import {setColorMode, setTheme, setPreventStageDrag} from '../../reducers/settings.js';
+import {isAndroidStageDragAvailable, persistPreventStageDrag} from '../../lib/android-stage-drag';
+import check from './check.svg';
 
 import menuBarStyles from './menu-bar.css';
 import styles from './settings-menu.css';
@@ -39,9 +41,15 @@ const SettingsMenu = ({
     onChangeColorMode,
     activeTheme,
     onChangeTheme,
+    preventStageDrag,
+    onChangePreventStageDrag,
     depth
 }) => {
     const intl = useIntl();
+    const handleTogglePreventStageDrag = useCallback(event => {
+        event.stopPropagation();
+        onChangePreventStageDrag(!preventStageDrag);
+    }, [onChangePreventStageDrag, preventStageDrag]);
 
     const enabledColorModesMap = useMemo(() => Object.keys(colorModeMap).reduce((acc, colorMode) => {
         if (enabledColorModes.includes(colorMode)) {
@@ -123,12 +131,34 @@ const SettingsMenu = ({
                     isRtl={isRtl}
                     depth={depth + 1}
                 />}
+                {isAndroidStageDragAvailable() && <MenuItem
+                    isDataMenuItem
+                    ariaRole="menuitemcheckbox"
+                    aria-checked={Boolean(preventStageDrag)}
+                    onClick={handleTogglePreventStageDrag}
+                    onParentKeyDown={handleKeyDown}
+                >
+                    <div className={styles.option}>
+                        <img
+                            className={classNames(styles.check, {[styles.selected]: preventStageDrag})}
+                            src={check}
+                            alt=""
+                        />
+                        <FormattedMessage
+                            id="gui.menuBar.preventStageDrag"
+                            defaultMessage="Prevent dragging sprites while playing"
+                            description="Android touch setting to lock sprite dragging from green flag until stop"
+                        />
+                    </div>
+                </MenuItem>}
             </MenuSection>
         </MenuBarMenu>
     </button>);
 };
 
 SettingsMenu.propTypes = {
+    preventStageDrag: PropTypes.bool,
+    onChangePreventStageDrag: PropTypes.func,
     canChangeColorMode: PropTypes.bool,
     canChangeTheme: PropTypes.bool,
     hasActiveMembership: PropTypes.bool,
@@ -141,12 +171,17 @@ SettingsMenu.propTypes = {
 };
 
 const mapStateToProps = state => ({
+    preventStageDrag: state.scratchGui.settings.preventStageDrag,
     activeColorMode: state.scratchGui.settings.colorMode,
     activeTheme: state.scratchGui.settings.theme,
     isRtl: state.locales.isRtl
 });
 
 const mapDispatchToProps = dispatch => ({
+    onChangePreventStageDrag: enabled => {
+        dispatch(setPreventStageDrag(enabled));
+        persistPreventStageDrag(enabled);
+    },
     onChangeColorMode: colorMode => {
         dispatch(setColorMode(colorMode));
         persistColorMode(colorMode);

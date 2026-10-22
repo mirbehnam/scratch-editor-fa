@@ -78,6 +78,7 @@ const baseConfig = new ScratchWebpackConfigBuilder(
         type: 'asset' // let webpack decide on the best type of asset
     })
     .addPlugin(new webpack.DefinePlugin({
+        'process.env.SCRATCH_ANDROID_TOUCH': JSON.stringify(String(isOptimizedOfflineBuild)),
         'process.env.DEBUG': Boolean(process.env.DEBUG),
         'process.env.GA_ID': `"${process.env.GA_ID || 'UA-000000-01'}"`,
         'process.env.GTM_ENV_AUTH': `"${process.env.GTM_ENV_AUTH || ''}"`,

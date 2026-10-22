@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import {STAGE_DISPLAY_SIZES} from '../lib/layout-constants';
 import {getEventXY} from '../lib/touch-utils';
 import VideoProvider from '../lib/video/video-provider';
+import {isAndroidStageDragAvailable} from '../lib/android-stage-drag';
 import {BitmapAdapter as V2BitmapAdapter} from '@scratch/scratch-svg-renderer';
 
 import StageComponent from '../components/stage/stage.jsx';
@@ -32,6 +33,7 @@ class Stage extends React.Component {
             'onMouseUp',
             'onMouseMove',
             'onMouseDown',
+            'onTouchCancel',
             'onStartDrag',
             'onStopDrag',
             'onWheel',
@@ -83,9 +85,17 @@ class Stage extends React.Component {
             this.props.isFullScreen !== nextProps.isFullScreen ||
             this.state.question !== nextState.question ||
             this.props.micIndicator !== nextProps.micIndicator ||
-            this.props.isStarted !== nextProps.isStarted;
+            this.props.isStarted !== nextProps.isStarted ||
+            this.props.blockTouchDrag !== nextProps.blockTouchDrag;
     }
     componentDidUpdate (prevProps) {
+        if (this.props.blockTouchDrag && !prevProps.blockTouchDrag && this.isTouchGesture) {
+            this.cancelMouseDownTimeout();
+            if (this.state.isDragging) {
+                this.onStopDrag(...this.state.mouseDownPosition);
+            }
+            this.setState({mouseDown: false});
+        }
         if (this.props.isColorPicking && !prevProps.isColorPicking) {
             this.startColorPickingLoop();
         } else if (!this.props.isColorPicking && prevProps.isColorPicking) {
@@ -95,6 +105,7 @@ class Stage extends React.Component {
         this.renderer.resize(this.rect.width, this.rect.height);
     }
     componentWillUnmount () {
+        clearTimeout(this.state.mouseDownTimeoutId);
         this.detachMouseEvents(this.canvas);
         this.detachRectEvents();
         this.stopColorPickingLoop();
@@ -123,6 +134,7 @@ class Stage extends React.Component {
         document.addEventListener('mouseup', this.onMouseUp);
         document.addEventListener('touchmove', this.onMouseMove);
         document.addEventListener('touchend', this.onMouseUp);
+        if (isAndroidStageDragAvailable()) document.addEventListener('touchcancel', this.onTouchCancel);
         canvas.addEventListener('mousedown', this.onMouseDown);
         canvas.addEventListener('touchstart', this.onMouseDown);
         canvas.addEventListener('wheel', this.onWheel);
@@ -132,6 +144,7 @@ class Stage extends React.Component {
         document.removeEventListener('mouseup', this.onMouseUp);
         document.removeEventListener('touchmove', this.onMouseMove);
         document.removeEventListener('touchend', this.onMouseUp);
+        document.removeEventListener('touchcancel', this.onTouchCancel);
         canvas.removeEventListener('mousedown', this.onMouseDown);
         canvas.removeEventListener('touchstart', this.onMouseDown);
         canvas.removeEventListener('wheel', this.onWheel);
@@ -252,6 +265,7 @@ class Stage extends React.Component {
     }
     onMouseDown (e) {
         this.updateRect();
+        this.isTouchGesture = Boolean(e.touches);
         const {x, y} = getEventXY(e);
         const mousePosition = [x - this.rect.left, y - this.rect.top];
         if (this.props.isColorPicking) {
@@ -261,7 +275,8 @@ class Stage extends React.Component {
             // Immediately update the color picker info
             this.setState({colorInfo: this.getColorInfo(this.pickX, this.pickY)});
         } else {
-            if (e.button === 0 || (window.TouchEvent && e instanceof TouchEvent)) {
+            if ((e.button === 0 || (window.TouchEvent && e instanceof TouchEvent)) &&
+                !(this.isTouchGesture && this.props.blockTouchDrag)) {
                 this.setState({
                     mouseDown: true,
                     mouseDownPosition: mousePosition,
@@ -288,6 +303,22 @@ class Stage extends React.Component {
                 }
             }
         }
+    }
+    onTouchCancel (e) {
+        if (!this.isTouchGesture) return;
+        this.cancelMouseDownTimeout();
+        if (this.state.isDragging) this.onStopDrag(...this.state.mouseDownPosition);
+        this.isTouchGesture = false;
+        this.setState({mouseDown: false, mouseDownPosition: null});
+        const {x, y} = getEventXY(e);
+        this.props.vm.postIOData('mouse', {
+            isDown: false,
+            wasDragged: true,
+            x: x - this.rect.left,
+            y: y - this.rect.top,
+            canvasWidth: this.rect.width,
+            canvasHeight: this.rect.height
+        });
     }
     onWheel (e) {
         const data = {
@@ -339,6 +370,7 @@ class Stage extends React.Component {
         this.dragCanvas.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
     }
     onStartDrag (x, y) {
+        if (this.isTouchGesture && this.props.blockTouchDrag) return;
         if (this.state.dragId) return;
         
         // Targets with no attached drawable cannot be dragged.
@@ -421,6 +453,7 @@ class Stage extends React.Component {
     render () {
         const {
             vm,
+            blockTouchDrag,
             onActivateColorPicker,
             ...props
         } = this.props;
@@ -439,6 +472,7 @@ class Stage extends React.Component {
 }
 
 Stage.propTypes = {
+    blockTouchDrag: PropTypes.bool,
     isColorPicking: PropTypes.bool,
     isFullScreen: PropTypes.bool.isRequired,
     isStarted: PropTypes.bool,
@@ -455,6 +489,9 @@ Stage.defaultProps = {
 };
 
 const mapStateToProps = state => ({
+    blockTouchDrag: isAndroidStageDragAvailable() && Boolean(
+        state.scratchGui.settings.preventStageDrag && state.scratchGui.vmStatus.playSessionActive
+    ),
     isColorPicking: state.scratchGui.colorPicker.active,
     isFullScreen: state.scratchGui.mode.isFullScreen,
     isStarted: state.scratchGui.vmStatus.started,

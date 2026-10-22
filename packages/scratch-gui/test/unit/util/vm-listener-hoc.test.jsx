@@ -5,6 +5,7 @@ import VM from '@scratch/scratch-vm';
 
 import vmListenerHOC from '../../../src/lib/vm-listener-hoc.jsx';
 import '@testing-library/jest-dom';
+import vmStatusReducer from '../../../src/reducers/vm-status';
 
 describe('VMListenerHOC', () => {
     const mockStore = configureStore();
@@ -36,6 +37,28 @@ describe('VMListenerHOC', () => {
         expect(onGreenFlag).not.toHaveBeenCalled();
         vm.emit('PROJECT_START');
         expect(onGreenFlag).toHaveBeenCalled();
+    });
+
+    test('play session lasts through idle scripts and ends on stop or project load', () => {
+        const WrappedComponent = vmListenerHOC(() => <div />);
+        const {unmount} = render(<WrappedComponent
+            store={store}
+            vm={vm}
+        />);
+        const status = () => store.getActions().reduce(vmStatusReducer, vmStatusReducer(void 0, {}));
+        vm.runtime.emit('PROJECT_START');
+        expect(status().playSessionActive).toBe(true);
+        vm.emit('PROJECT_RUN_STOP');
+        expect(status().playSessionActive).toBe(true);
+        vm.runtime.emit('PROJECT_STOP_ALL');
+        expect(status().playSessionActive).toBe(false);
+        vm.runtime.emit('PROJECT_START');
+        vm.runtime.emit('PROJECT_LOADED');
+        expect(status().playSessionActive).toBe(false);
+        unmount();
+        store.clearActions();
+        vm.runtime.emit('PROJECT_START');
+        expect(store.getActions()).toEqual([]);
     });
 
     test('onGreenFlag is not passed to the children', () => {

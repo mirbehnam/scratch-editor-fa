@@ -9,7 +9,7 @@ import {updateTargets} from '../reducers/targets';
 import {updateBlockDrag} from '../reducers/block-drag';
 import {updateMonitors} from '../reducers/monitors';
 import {setProjectChanged, setProjectUnchanged} from '../reducers/project-changed';
-import {setRunningState, setTurboState, setStartedState} from '../reducers/vm-status';
+import {setRunningState, setTurboState, setStartedState, setPlaySession} from '../reducers/vm-status';
 import {showExtensionAlert, showStandardAlert, closeAlertWithId} from '../reducers/alerts';
 import {updateMicIndicator} from '../reducers/mic-indicator';
 
@@ -44,6 +44,9 @@ const vmListenerHOC = function (WrappedComponent) {
             this.props.vm.on('PROJECT_CHANGED', this.handleProjectChanged);
             this.props.vm.on('RUNTIME_STARTED', this.props.onRuntimeStarted);
             this.props.vm.on('PROJECT_START', this.props.onGreenFlag);
+            this.props.vm.runtime.on('PROJECT_START', this.props.onPlaySessionStart);
+            this.props.vm.runtime.on('PROJECT_STOP_ALL', this.props.onPlaySessionEnd);
+            this.props.vm.runtime.on('PROJECT_LOADED', this.props.onPlaySessionEnd);
             this.props.vm.on('PERIPHERAL_CONNECTION_LOST_ERROR', this.props.onShowExtensionAlert);
             this.props.vm.on('MIC_LISTENING', this.props.onMicListeningUpdate);
             this.props.vm.on('EXTENSION_DATA_LOADING', this.props.onExtensionDataLoading);
@@ -78,6 +81,9 @@ const vmListenerHOC = function (WrappedComponent) {
             this.props.vm.removeListener('PROJECT_CHANGED', this.handleProjectChanged);
             this.props.vm.removeListener('RUNTIME_STARTED', this.props.onRuntimeStarted);
             this.props.vm.removeListener('PROJECT_START', this.props.onGreenFlag);
+            this.props.vm.runtime.removeListener('PROJECT_START', this.props.onPlaySessionStart);
+            this.props.vm.runtime.removeListener('PROJECT_STOP_ALL', this.props.onPlaySessionEnd);
+            this.props.vm.runtime.removeListener('PROJECT_LOADED', this.props.onPlaySessionEnd);
             this.props.vm.removeListener('PERIPHERAL_CONNECTION_LOST_ERROR', this.props.onShowExtensionAlert);
             this.props.vm.removeListener('MIC_LISTENING', this.props.onMicListeningUpdate);
             this.props.vm.removeListener('EXTENSION_DATA_LOADING', this.props.onExtensionDataLoading);
@@ -142,6 +148,8 @@ const vmListenerHOC = function (WrappedComponent) {
                 shouldUpdateProjectChanged,
                 onBlockDragUpdate,
                 onGreenFlag,
+                onPlaySessionStart,
+                onPlaySessionEnd,
                 onKeyDown,
                 onKeyUp,
                 onMicListeningUpdate,
@@ -167,6 +175,8 @@ const vmListenerHOC = function (WrappedComponent) {
         onBlockDragUpdate: PropTypes.func.isRequired,
         onExtensionDataLoading: PropTypes.func.isRequired,
         onGreenFlag: PropTypes.func,
+        onPlaySessionStart: PropTypes.func.isRequired,
+        onPlaySessionEnd: PropTypes.func.isRequired,
         onKeyDown: PropTypes.func,
         onKeyUp: PropTypes.func,
         onMicListeningUpdate: PropTypes.func.isRequired,
@@ -206,6 +216,8 @@ const vmListenerHOC = function (WrappedComponent) {
         )
     });
     const mapDispatchToProps = dispatch => ({
+        onPlaySessionStart: () => dispatch(setPlaySession(true)),
+        onPlaySessionEnd: () => dispatch(setPlaySession(false)),
         onTargetsUpdate: data => {
             dispatch(updateTargets(data.targetList, data.editingTarget));
         },
