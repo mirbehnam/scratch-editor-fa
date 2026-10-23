@@ -3,6 +3,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const ScratchWebpackConfigBuilder = require('scratch-webpack-configuration');
+const nodeExternals = require('webpack-node-externals');
 
 const common = {
     libraryName: 'scratch-vm',
@@ -11,6 +12,7 @@ const common = {
 
 const nodeBuilder = new ScratchWebpackConfigBuilder(common)
     .setTarget('node')
+    .addExternals([nodeExternals({modulesDir: path.resolve(__dirname, '../../node_modules')})])
     .merge({
         entry: {
             'extension-worker': path.join(__dirname, 'src/extension-support/extension-worker.js')

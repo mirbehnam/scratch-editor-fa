@@ -3,6 +3,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const ScratchWebpackConfigBuilder = require('scratch-webpack-configuration');
+const nodeExternals = require('webpack-node-externals');
 
 const baseConfig = new ScratchWebpackConfigBuilder({
     rootPath: path.resolve(__dirname)
@@ -58,6 +59,7 @@ const playgroundConfig = baseConfig
 
 const nodeConfig = baseConfig.clone()
     .setTarget('node')
+    .addExternals([nodeExternals({modulesDir: path.resolve(__dirname, '../../node_modules')})])
     .merge({
         entry: {
             'scratch-render': path.join(__dirname, 'src/index.js')
