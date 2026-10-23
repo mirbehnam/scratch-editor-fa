@@ -108,6 +108,14 @@ unless that migration is the explicit goal of the task.
 All packages use ESLint 9 flat config (`eslint.config.mjs`) with `eslint-config-scratch`. If a package also uses
 Prettier (currently `task-herder`), run `npm run format` in addition to lint.
 
+Browser builds target [Baseline Widely Available](https://web.dev/baseline), via the browserslist query
+`baseline widely available`. Runtime floors in `packages/scratch-gui/src/lib/supported-browser.js` should match
+the core-browser mins of that query.
+
+This fork's offline Android/Windows build uses `BROWSERSLIST_ENV=android` to preserve its previous
+browser compilation targets across GUI, paint, storage, VM, render, and SVG renderer. The default
+build continues to follow upstream Baseline. Do not remove the Android environment during updates.
+
 ### scratch-gui specifics
 
 - React functional components with hooks for new code; class components exist in older code.
