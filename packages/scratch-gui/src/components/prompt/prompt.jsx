@@ -53,6 +53,7 @@ const PromptComponent = props => (
                 <input
                     autoFocus
                     className={styles.variableNameTextInput}
+                    data-native-input-submit="enter"
                     defaultValue={props.defaultValue}
                     name={props.label}
                     onChange={props.onChange}
