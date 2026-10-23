@@ -1,3 +1,5 @@
+import installRtlSelectionOutline from './rtl-selection-outline';
+
 /**
  * Connect scratch blocks with the vm
  * @param {VirtualMachine} vm - The scratch vm
@@ -5,6 +7,7 @@
  */
 export default function (vm) {
     const ScratchBlocks = require('scratch-blocks');
+    installRtlSelectionOutline(ScratchBlocks);
 
     const jsonForMenuBlock = function (name, menuOptionsFn, category, start) {
         return {
