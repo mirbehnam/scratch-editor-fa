@@ -57,6 +57,7 @@ const PromptComponent = props => {
             className={classNames(styles.modalContent, {[styles.nativeInputModal]: nativeInput})}
             contentLabel={props.title}
             onRequestClose={props.onCancel}
+            shouldCloseOnOverlayClick={!nativeInput}
         >
             <Box className={styles.body}>
                 <Box className={styles.label}>
