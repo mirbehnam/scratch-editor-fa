@@ -5,6 +5,21 @@
     width: 360px;
 }
 
+.modal-content.native-input-modal {
+    margin: 8px auto;
+    max-width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+}
+
+.native-input-modal .body {
+    padding: 0.75rem 1.25rem;
+}
+
+.native-input-modal .variable-name-text-input {
+    margin-bottom: 0.75rem;
+}
+
 .body {
     background: $ui-white;
     padding: 1.5rem 2.25rem;

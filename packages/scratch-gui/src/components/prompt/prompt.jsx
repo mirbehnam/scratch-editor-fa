@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import {defineMessages, FormattedMessage} from 'react-intl';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 
 import Box from '../box/box.jsx';
 import Modal from '../../containers/modal.jsx';
@@ -39,114 +39,128 @@ const messages = defineMessages({
     }
 });
 
-const PromptComponent = props => (
-    <Modal
-        className={styles.modalContent}
-        contentLabel={props.title}
-        onRequestClose={props.onCancel}
-    >
-        <Box className={styles.body}>
-            <Box className={styles.label}>
-                {props.label}
-            </Box>
-            <Box>
-                <input
-                    autoFocus
-                    className={styles.variableNameTextInput}
-                    data-native-input-submit="enter"
-                    defaultValue={props.defaultValue}
-                    name={props.label}
-                    onChange={props.onChange}
-                    onFocus={props.onFocus}
-                    onKeyPress={props.onKeyPress}
-                />
-            </Box>
-            {props.showVariableOptions ?
-                <div>
-                    {props.isStage ?
-                        <div className={styles.infoMessage}>
-                            {props.showListMessage ? (
-                                <FormattedMessage
-                                    {...messages.listAvailableToAllSpritesMessage}
-                                />
-                            ) : (
-                                <FormattedMessage
-                                    {...messages.availableToAllSpritesMessage}
-                                />
-                            )}
-                        </div> :
-                        <Box className={styles.optionsRow}>
-                            <label>
-                                <input
-                                    checked={props.globalSelected}
-                                    name="variableScopeOption"
-                                    type="radio"
-                                    value="global"
-                                    onChange={props.onScopeOptionSelection}
-                                />
-                                <FormattedMessage
-                                    {...messages.forAllSpritesMessage}
-                                />
-                            </label>
-                            <label
-                                className={classNames({[styles.disabledLabel]: props.cloudSelected})}
-                            >
-                                <input
-                                    checked={!props.globalSelected}
-                                    disabled={props.cloudSelected}
-                                    name="variableScopeOption"
-                                    type="radio"
-                                    value="local"
-                                    onChange={props.onScopeOptionSelection}
-                                />
-                                <FormattedMessage
-                                    {...messages.forThisSpriteMessage}
-                                />
-                            </label>
-                        </Box>}
-                    {props.showCloudOption ?
-                        <Box className={classNames(styles.cloudOption)}>
-                            <label
-                                className={classNames({[styles.disabledLabel]: !props.canAddCloudVariable})}
-                            >
-                                <input
-                                    checked={props.cloudSelected && props.canAddCloudVariable}
-                                    disabled={!props.canAddCloudVariable}
-                                    type="checkbox"
-                                    onChange={props.onCloudVarOptionChange}
-                                />
-                                <FormattedMessage
-                                    {...messages.cloudVarOptionMessage}
-                                />
-                            </label>
-                        </Box> : null}
-                </div> : null}
+const PromptComponent = props => {
+    const inputRef = useRef(null);
+    const nativeInput = Boolean(window.AndroidScratchTextInput);
+    useEffect(() => {
+        if (!nativeInput) return;
+        // Paint the dialog before handing focus to the native keyboard overlay.
+        let frame = requestAnimationFrame(() => {
+            frame = requestAnimationFrame(() => {
+                inputRef.current.focus({preventScroll: true});
+            });
+        });
+        return () => cancelAnimationFrame(frame);
+    }, [nativeInput]);
+    return (
+        <Modal
+            className={classNames(styles.modalContent, {[styles.nativeInputModal]: nativeInput})}
+            contentLabel={props.title}
+            onRequestClose={props.onCancel}
+        >
+            <Box className={styles.body}>
+                <Box className={styles.label}>
+                    {props.label}
+                </Box>
+                <Box>
+                    <input
+                        autoFocus={!nativeInput}
+                        ref={inputRef}
+                        className={styles.variableNameTextInput}
+                        defaultValue={props.defaultValue}
+                        name={props.label}
+                        onChange={props.onChange}
+                        onFocus={props.onFocus}
+                        onKeyPress={props.onKeyPress}
+                    />
+                </Box>
+                {props.showVariableOptions ?
+                    <div>
+                        {props.isStage ?
+                            <div className={styles.infoMessage}>
+                                {props.showListMessage ? (
+                                    <FormattedMessage
+                                        {...messages.listAvailableToAllSpritesMessage}
+                                    />
+                                ) : (
+                                    <FormattedMessage
+                                        {...messages.availableToAllSpritesMessage}
+                                    />
+                                )}
+                            </div> :
+                            <Box className={styles.optionsRow}>
+                                <label>
+                                    <input
+                                        checked={props.globalSelected}
+                                        name="variableScopeOption"
+                                        type="radio"
+                                        value="global"
+                                        onChange={props.onScopeOptionSelection}
+                                    />
+                                    <FormattedMessage
+                                        {...messages.forAllSpritesMessage}
+                                    />
+                                </label>
+                                <label
+                                    className={classNames({[styles.disabledLabel]: props.cloudSelected})}
+                                >
+                                    <input
+                                        checked={!props.globalSelected}
+                                        disabled={props.cloudSelected}
+                                        name="variableScopeOption"
+                                        type="radio"
+                                        value="local"
+                                        onChange={props.onScopeOptionSelection}
+                                    />
+                                    <FormattedMessage
+                                        {...messages.forThisSpriteMessage}
+                                    />
+                                </label>
+                            </Box>}
+                        {props.showCloudOption ?
+                            <Box className={classNames(styles.cloudOption)}>
+                                <label
+                                    className={classNames({[styles.disabledLabel]: !props.canAddCloudVariable})}
+                                >
+                                    <input
+                                        checked={props.cloudSelected && props.canAddCloudVariable}
+                                        disabled={!props.canAddCloudVariable}
+                                        type="checkbox"
+                                        onChange={props.onCloudVarOptionChange}
+                                    />
+                                    <FormattedMessage
+                                        {...messages.cloudVarOptionMessage}
+                                    />
+                                </label>
+                            </Box> : null}
+                    </div> : null}
 
-            <Box className={styles.buttonRow}>
-                <button
-                    className={styles.cancelButton}
-                    onClick={props.onCancel}
-                >
-                    <FormattedMessage
-                        defaultMessage="Cancel"
-                        description="Button in prompt for cancelling the dialog"
-                        id="gui.prompt.cancel"
-                    />
-                </button>
-                <button
-                    className={styles.okButton}
-                    onClick={props.onOk}
-                >
-                    <FormattedMessage
-                        defaultMessage="OK"
-                        description="Button in prompt for confirming the dialog"
-                        id="gui.prompt.ok"
-                    />
-                </button>
+                <Box className={styles.buttonRow}>
+                    <button
+                        className={styles.cancelButton}
+                        onClick={props.onCancel}
+                    >
+                        <FormattedMessage
+                            defaultMessage="Cancel"
+                            description="Button in prompt for cancelling the dialog"
+                            id="gui.prompt.cancel"
+                        />
+                    </button>
+                    <button
+                        className={styles.okButton}
+                        onClick={props.onOk}
+                    >
+                        <FormattedMessage
+                            defaultMessage="OK"
+                            description="Button in prompt for confirming the dialog"
+                            id="gui.prompt.ok"
+                        />
+                    </button>
+                </Box>
             </Box>
-        </Box>
-    </Modal>
-);
+        </Modal>
+    );
+};
 
 PromptComponent.propTypes = {
     canAddCloudVariable: PropTypes.bool.isRequired,
