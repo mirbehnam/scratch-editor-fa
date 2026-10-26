@@ -6,6 +6,11 @@ storage, localization, or editor UI, read [CUSTOMIZATION_INVARIANTS.md](CUSTOMIZ
 and preserve its contracts. [MY_DEVELOP_CHANGES.md](MY_DEVELOP_CHANGES.md) records
 the detailed history and build commands.
 
+The custom release workflow (`.github/workflows/custom-release.yml`) builds offline
+Android assets and both Windows installers on GitHub when `my-develop` advances its
+root package version or a `vX.Y.Z-fa.N` tag is pushed. Preserve this explicit exception
+to the fork's manual-only general CI policy. It does not publish npm packages.
+
 ## AI-assisted development policy
 
 See [CONTRIBUTING.AI.md](https://github.com/scratchfoundation/.github/blob/main/CONTRIBUTING.AI.md) for Scratch's

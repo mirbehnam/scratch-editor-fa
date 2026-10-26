@@ -1,0 +1,161 @@
+name: Release Scratch farsi
+
+on:
+  push:
+    branches: [my-develop]
+    paths: [package.json]
+    tags: ['v*-fa.*']
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release-tag:
+        description: 'Existing custom tag to rebuild (empty: current version, fa.1)'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.plan.outputs.build }}
+      tag: ${{ steps.plan.outputs.tag }}
+      sha: ${{ steps.plan.outputs.sha }}
+      version: ${{ steps.plan.outputs.version }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+      - name: Select custom release
+        id: plan
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release-tag }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          import {appendFileSync, readFileSync} from 'node:fs';
+          const git = (...args) => execFileSync('git', args, {encoding: 'utf8'}).trim();
+          const output = values => appendFileSync(process.env.GITHUB_OUTPUT,
+            Object.entries(values).map(([key, value]) => `${key}=${value}\n`).join(''));
+          const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
+          let tag = process.env.RELEASE_TAG;
+          if (process.env.GITHUB_REF.startsWith('refs/tags/')) {
+            tag = process.env.GITHUB_REF.slice('refs/tags/'.length);
+          }
+          if (process.env.EVENT_NAME === 'push' && !tag) {
+            const before = process.env.BEFORE_SHA;
+            if (!before || /^0+$/.test(before)) {
+              output({build: false});
+              process.exit(0);
+            }
+            const previous = JSON.parse(git('show', `${before}:package.json`)).version;
+            const stable = /^\d+\.\d+\.\d+$/;
+            if (!stable.test(version) || !stable.test(previous)) {
+              throw new Error('Automatic version releases require stable major.minor.patch versions');
+            }
+            const currentParts = version.split('.').map(Number);
+            const previousParts = previous.split('.').map(Number);
+            const different = currentParts.findIndex((part, i) => part !== previousParts[i]);
+            if (different === -1 || currentParts[different] < previousParts[different]) {
+              output({build: false});
+              process.exit(0);
+            }
+          }
+          tag ||= `v${version}-fa.1`;
+          if (!/^v\d+\.\d+\.\d+-fa\.\d+$/.test(tag)) {
+            if (process.env.EVENT_NAME === 'release') {
+              output({build: false});
+              process.exit(0);
+            }
+            throw new Error(`Invalid custom release tag: ${tag}`);
+          }
+          const tags = git('tag', '--list', tag);
+          const sha = git('rev-parse', tags ? `refs/tags/${tag}^{commit}` : 'HEAD');
+          git('merge-base', '--is-ancestor', sha, 'origin/my-develop');
+          const targetVersion = JSON.parse(git('show', `${sha}:package.json`)).version;
+          if (tag.split('-fa.')[0] !== `v${targetVersion}`) {
+            throw new Error(`Tag ${tag} does not match package version ${targetVersion}`);
+          }
+          output({build: true, tag, sha, version: targetVersion});
+          NODE
+
+  release:
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    runs-on: windows-2022
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    concurrency:
+      group: custom-release-${{ needs.plan.outputs.tag }}
+      cancel-in-progress: false
+    env:
+      CI: 'true'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      NODE_OPTIONS: --max-old-space-size=8192
+      RELEASE_TAG: ${{ needs.plan.outputs.tag }}
+      RELEASE_VERSION: ${{ needs.plan.outputs.version }}
+      RELEASE_SHA: ${{ needs.plan.outputs.sha }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: Install dependencies
+        run: npm ci --include=dev --registry=https://registry.npmjs.org
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          $compiler = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (!(Test-Path -LiteralPath $compiler)) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          if (!(Test-Path -LiteralPath $compiler)) { throw 'Inno Setup compiler not found' }
+          "ISCC_PATH=$compiler" >> $env:GITHUB_ENV
+      - name: Build workspace dependencies
+        run: npm run build
+      - name: Build offline Android assets and both Windows installers
+        run: npm run build:android
+      - name: Package Android assets and checksums
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path release-assets | Out-Null
+          $archive = "release-assets/Scratch-FA-$env:RELEASE_VERSION-android-assets.zip"
+          tar.exe -a -cf $archive -C packages/scratch-gui/build .
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Copy-Item packages/scratch-gui/build-windows/installers/*-Setup.exe release-assets/
+          $files = @(Get-ChildItem release-assets -File)
+          if ($files.Count -ne 3) { throw 'Expected Android archive and two Windows installers' }
+          $files | ForEach-Object {
+            $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)"
+          } | Set-Content release-assets/SHA256SUMS.txt -Encoding utf8
+      - name: Publish release downloads
+        shell: pwsh
+        run: |
+          gh release view $env:RELEASE_TAG --json tagName
+          if ($LASTEXITCODE -ne 0) {
+            $notes = @"
+          Offline Scratch farsi $env:RELEASE_VERSION for Android assets and Windows x64/ia32.
+          Built from $env:RELEASE_SHA on GitHub Actions. The Android ZIP contains assets/build contents, not an APK.
+          Restore point: $env:RELEASE_TAG. Create a recovery branch with: git switch -c recovery-$env:RELEASE_VERSION $env:RELEASE_TAG
+          "@
+            $notes | Set-Content release-notes.md -Encoding utf8
+            gh release create $env:RELEASE_TAG --target $env:RELEASE_SHA --title "Scratch farsi $env:RELEASE_VERSION" --notes-file release-notes.md
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          $files = @(Get-ChildItem release-assets -File | ForEach-Object { $_.FullName })
+          gh release upload $env:RELEASE_TAG @files --clobber
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
