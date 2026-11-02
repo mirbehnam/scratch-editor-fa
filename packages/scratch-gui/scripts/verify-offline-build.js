@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const {createHash} = require('crypto');
 
 const packageRoot = path.resolve(__dirname, '..');
 const buildDirectory = path.join(packageRoot, 'build');
@@ -45,6 +46,20 @@ if (!includesPersianFont) {
 }
 
 if (verifyOptimizedBuild) {
+    const tutorialAudit = require('./tutorial-removal-audit.json');
+    const removedImageHashes = new Set(tutorialAudit.files
+        .filter(file => /\.(png|jpe?g|gif|svg|webp)$/i.test(file.path))
+        .map(file => file.sha256));
+    for (const file of fs.readdirSync(buildAssetDirectory)) {
+        if (!/\.(png|jpe?g|gif|svg|webp)$/i.test(file)) continue;
+        const contents = fs.readFileSync(path.join(buildAssetDirectory, file));
+        const hash = createHash('sha256').update(contents)
+            .digest('hex');
+        if (removedImageHashes.has(hash)) {
+            throw new Error(`Optimized offline build contains a removed tutorial asset: ${file}`);
+        }
+    }
+
     const requiredSandboxFiles = [
         [buildAssetDirectory, 'runner.'],
         [buildAssetDirectory, 'measure-svg.'],

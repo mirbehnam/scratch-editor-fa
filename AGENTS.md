@@ -16,6 +16,12 @@ explicit exception: every push to `my-develop` creates a commit-specific GitHub 
 and source prerelease through the GitHub API on the runner. Do not create its tags
 or archives locally, move existing restore tags, or promote snapshots to Latest.
 
+This custom GUI intentionally excludes the tutorial system from source and every
+build. Do not restore decks, cards, tutorial URL handling or tutorial-only exports
+during upstream merges. Preserve sprite/backdrop/costume/sound libraries and shared
+UI assets. `scripts/tutorial-removal-audit.json` in scratch-gui records each audited
+removal; the optimized build verifier rejects the removed image hashes.
+
 ## AI-assisted development policy
 
 See [CONTRIBUTING.AI.md](https://github.com/scratchfoundation/.github/blob/main/CONTRIBUTING.AI.md) for Scratch's

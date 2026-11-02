@@ -100,8 +100,7 @@ export default eslintConfigScratch.defineConfig(
     },
     {
         files: [
-            'src/lib/libraries/extensions/index.jsx',
-            'src/lib/libraries/decks/*.js'
+            'src/lib/libraries/extensions/index.jsx'
         ],
         rules: {
             // the way these files are built makes duplicate imports the natural way to do things

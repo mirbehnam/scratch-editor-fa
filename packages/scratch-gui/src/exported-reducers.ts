@@ -9,7 +9,6 @@ import GuiReducer, {
     initPlayer
 } from './reducers/gui';
 import {setFullScreen, setPlayer, setEmbedded} from './reducers/mode.js';
-import {activateDeck} from './reducers/cards.js';
 import {
     LoadingStates,
     onFetchedProjectData,
@@ -32,7 +31,6 @@ import {
     openSpriteLibrary,
     openSoundRecorder,
     openConnectionModal,
-    openTipsLibrary,
     closeBackdropLibrary,
     closeCostumeLibrary,
     closeDebugModal,
@@ -42,7 +40,6 @@ import {
     closeSpriteLibrary,
     closeSoundLibrary,
     closeSoundRecorder,
-    closeTipsLibrary,
     closeConnectionModal
 } from './reducers/modals.js';
 import {setStageSize} from './reducers/stage-size';
@@ -75,7 +72,6 @@ export {
     openSpriteLibrary,
     openSoundRecorder,
     openConnectionModal,
-    openTipsLibrary,
     closeBackdropLibrary,
     closeCostumeLibrary,
     closeDebugModal,
@@ -85,7 +81,6 @@ export {
     closeSpriteLibrary,
     closeSoundLibrary,
     closeSoundRecorder,
-    closeTipsLibrary,
     closeConnectionModal,
     
     buildGuiMiddleware,
@@ -99,6 +94,5 @@ export {
     setFullScreen,
     setPlayer,
     setEmbedded,
-    activateDeck,
     selectLocale
 };
