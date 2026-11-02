@@ -11,6 +11,11 @@ Android assets and both Windows installers on GitHub when `my-develop` advances 
 root package version or a `vX.Y.Z-fa.N` tag is pushed. Preserve this explicit exception
 to the fork's manual-only general CI policy. It does not publish npm packages.
 
+The server restore-point workflow (`.github/workflows/restore-point.yml`) is another
+explicit exception: every push to `my-develop` creates a commit-specific GitHub tag
+and source prerelease through the GitHub API on the runner. Do not create its tags
+or archives locally, move existing restore tags, or promote snapshots to Latest.
+
 ## AI-assisted development policy
 
 See [CONTRIBUTING.AI.md](https://github.com/scratchfoundation/.github/blob/main/CONTRIBUTING.AI.md) for Scratch's

@@ -1,0 +1,83 @@
+name: Create server restore point
+
+on:
+  push:
+    branches: [my-develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  restore-point:
+    if: github.ref == 'refs/heads/my-develop' && !github.event.deleted
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    concurrency:
+      group: restore-point-${{ github.sha }}
+      cancel-in-progress: false
+    steps:
+      - name: Create restore tag and source release on GitHub
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const sha = context.sha;
+            const tag = `restore-point-my-develop-${sha}`;
+            const ref = `tags/${tag}`;
+            let existingRef;
+            try {
+              existingRef = (await github.rest.git.getRef({owner, repo, ref})).data;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (existingRef) {
+              if (existingRef.object.type !== 'commit' || existingRef.object.sha !== sha) {
+                throw new Error(`Restore tag ${tag} must point to commit ${sha}`);
+              }
+            } else {
+              await github.rest.git.createRef({owner, repo, ref: `refs/${ref}`, sha});
+            }
+
+            let release;
+            try {
+              release = (await github.rest.repos.getReleaseByTag({owner, repo, tag})).data;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (!release) {
+              const repositoryUrl = `${context.serverUrl}/${owner}/${repo}`;
+              const runUrl = `${repositoryUrl}/actions/runs/${context.runId}`;
+              release = (await github.rest.repos.createRelease({
+                owner,
+                repo,
+                tag_name: tag,
+                target_commitish: sha,
+                name: `Restore point my-develop (${sha.slice(0, 12)})`,
+                body: [
+                  'Source restore point created automatically on GitHub Actions.',
+                  '',
+                  `Commit: [${sha}](${repositoryUrl}/commit/${sha})`,
+                  `Workflow: [${context.runId}](${runUrl})`,
+                  '',
+                  'Download the GitHub-generated source ZIP or tar.gz from this release.',
+                  '',
+                  'Create a recovery branch:',
+                  '```sh',
+                  `git fetch origin tag ${tag}`,
+                  `git switch -c recovery-${sha.slice(0, 12)} ${tag}`,
+                  '```'
+                ].join('\n'),
+                draft: false,
+                prerelease: true,
+                make_latest: 'false'
+              })).data;
+            }
+            core.info(`Restore point: ${release.html_url}`);
+            await core.summary
+              .addHeading('Server restore point')
+              .addLink(tag, release.html_url)
+              .addRaw(`\n\nCommit: ${sha}\n`)
+              .write();
