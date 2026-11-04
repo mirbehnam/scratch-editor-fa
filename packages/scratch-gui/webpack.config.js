@@ -87,6 +87,10 @@ const baseConfig = new ScratchWebpackConfigBuilder(
     .addPlugin(new CopyWebpackPlugin({
         patterns: [
             {
+                from: '../../vendor/quality-packager/runtime',
+                to: 'quality-packager'
+            },
+            {
                 from: '../../node_modules/scratch-blocks/media',
                 to: 'static/blocks-media/default'
             },

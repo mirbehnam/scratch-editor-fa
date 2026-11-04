@@ -11,6 +11,7 @@ import {
     LoadingStates,
     getIsLoadingUpload,
     getIsShowingWithoutId,
+    getIsShowingProject,
     onLoadedProject,
     requestProjectUpload
 } from '../reducers/project-state';
@@ -60,11 +61,17 @@ const SBFileUploaderHOC = function (WrappedComponent) {
             }
         }
         componentDidUpdate (prevProps) {
+            if (this.props.isShowingProject && this.pendingAndroidProject) {
+                const {url, filename} = this.pendingAndroidProject;
+                this.pendingAndroidProject = null;
+                this.loadProjectFromUrl(url, filename);
+            }
             if (this.props.isLoadingUpload && !prevProps.isLoadingUpload) {
                 this.handleFinishedLoadingUpload(); // cue step 5 below
             }
         }
         componentWillUnmount () {
+            this.pendingAndroidProject = null;
             delete window.AndroidScratchLoadProject;
             delete window.AndroidScratchLoadProjectUrl;
             this.removeFileObjects();
@@ -74,6 +81,10 @@ const SBFileUploaderHOC = function (WrappedComponent) {
             this.createFileObjects(); // go to step 2
         }
         loadProjectFromUrl (url, filename) {
+            if (!this.props.isShowingProject) {
+                this.pendingAndroidProject = {url, filename};
+                return Promise.resolve();
+            }
             if (window.AndroidProjectSaver && typeof window.AndroidProjectSaver.projectLoadStarted === 'function') {
                 window.AndroidProjectSaver.projectLoadStarted();
             }
@@ -239,6 +250,7 @@ const SBFileUploaderHOC = function (WrappedComponent) {
         intl: intlShape.isRequired,
         isLoadingUpload: PropTypes.bool,
         isShowingWithoutId: PropTypes.bool,
+        isShowingProject: PropTypes.bool,
         loadingState: PropTypes.oneOf(LoadingStates),
         onLoadingFinished: PropTypes.func,
         onLoadingStarted: PropTypes.func,
@@ -256,6 +268,7 @@ const SBFileUploaderHOC = function (WrappedComponent) {
         return {
             isLoadingUpload: getIsLoadingUpload(loadingState),
             isShowingWithoutId: getIsShowingWithoutId(loadingState),
+            isShowingProject: getIsShowingProject(loadingState),
             loadingState: loadingState,
             projectChanged: state.scratchGui.projectChanged,
             userOwnsProject: ownProps.userOwnsProject ?? (

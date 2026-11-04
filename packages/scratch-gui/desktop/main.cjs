@@ -1,7 +1,10 @@
 /* global __dirname, console, process */
 
-const {app, BrowserWindow, dialog, session, shell} = require('electron');
+const {app, BrowserWindow, dialog, ipcMain, session, shell} = require('electron');
 const path = require('path');
+const {fileURLToPath, URL} = require('node:url');
+const {createPackagerExporter} = require('./packager-export.cjs');
+const {shareFile, stopShareHelpers} = require('./share-file.cjs');
 const {APP_NAME, WINDOW_TITLE, createCloseHandler} = require('./window-config.cjs');
 
 const createWindow = () => {
@@ -17,8 +20,29 @@ const createWindow = () => {
         webPreferences: {
             contextIsolation: true,
             nodeIntegration: false,
-            sandbox: true
+            sandbox: true,
+            preload: path.join(__dirname, 'preload.cjs')
         }
+    });
+
+    const entryPath = path.resolve(__dirname, 'build', 'index.html');
+    const exporter = createPackagerExporter({downloads: app.getPath('downloads'),
+        cache: path.join(app.getPath('temp'), 'ScratchFarsi-packager'),
+        shareFile});
+    ipcMain.handle('packager-export', async (event, message) => {
+        if (event.sender !== mainWindow.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) {
+            throw new Error('Untrusted export sender');
+        }
+        const url = new URL(event.senderFrame.url);
+        if (url.protocol !== 'file:' || path.resolve(fileURLToPath(url)) !== entryPath) {
+            throw new Error('Untrusted export sender');
+        }
+        return exporter.request(message);
+    });
+    mainWindow.on('closed', () => {
+        ipcMain.removeHandler('packager-export');
+        exporter.dispose().catch(error => console.warn('Packager cleanup failed:', error));
+        stopShareHelpers();
     });
 
     mainWindow.setMenuBarVisibility(false);

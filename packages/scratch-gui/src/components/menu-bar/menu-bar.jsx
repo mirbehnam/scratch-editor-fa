@@ -17,6 +17,7 @@ import ShareButton from './share-button.jsx';
 import SaveStatus from './save-status.jsx';
 import ProjectWatcher from '../../containers/project-watcher.jsx';
 import ProjectTitleInput from './project-title-input.jsx';
+import QualityRunButton from '../quality-run/quality-run.jsx';
 import AuthorInfo from './author-info.jsx';
 import LoginDropdown from './login-dropdown.jsx';
 import MenuBarHOC from '../../containers/menu-bar-hoc.jsx';
@@ -68,11 +69,6 @@ import {AccountMenuOptionsPropTypes} from '../../lib/account-menu-options';
 import AccountMenu from './account-menu.jsx';
 
 const ariaMessages = defineMessages({
-    home: {
-        id: 'gui.menuBar.home',
-        defaultMessage: 'Home',
-        description: 'accessibility text for the home button'
-    },
     myStuff: {
         id: 'gui.menuBar.myStuff',
         defaultMessage: 'My Stuff',
@@ -255,21 +251,15 @@ class MenuBar extends React.Component {
             >
                 <div className={styles.mainMenu}>
                     <div className={styles.fileGroup}>
-                        <button
-                            aria-label={this.props.intl.formatMessage(ariaMessages.home)}
-                            className={classNames(styles.menuBarItem)}
-                            onClick={this.props.onClickLogo}
-                        >
+                        <div className={styles.branding}>
                             <img
                                 id="logo_img"
                                 alt="Scratch"
-                                className={classNames(styles.scratchLogo, {
-                                    [styles.clickable]: typeof this.props.onClickLogo !== 'undefined'
-                                })}
+                                className={styles.scratchLogo}
                                 draggable={false}
                                 src={getScratchLogo(this.props.platform)}
                             />
-                        </button>
+                        </div>
                         {this.props.canChangeLanguage && <LanguageMenu />}
                         {(this.props.canChangeColorMode || this.props.canChangeTheme) &&
                         (<SettingsMenu
@@ -323,6 +313,11 @@ class MenuBar extends React.Component {
                             avatarBadge={this.props.authorAvatarBadge}
                         />
                     ) : null)}
+                    {this.props.canEditTitle && <QualityRunButton
+                        vm={this.props.vm}
+                        title={this.props.projectTitle}
+                        disabled={!this.props.isShowingProject}
+                    />}
                     <div className={classNames(styles.menuBarItem)}>
                         {this.props.canShare ? (
                             (this.props.isShowingProject || this.props.isUpdating) && (
@@ -516,6 +511,8 @@ MenuBar.propTypes = {
         )
     ]),
     onClickLogin: PropTypes.func,
+    // Accepted by the public GUI API; branding is noninteractive.
+    // eslint-disable-next-line react/no-unused-prop-types
     onClickLogo: PropTypes.func,
     onClickNew: PropTypes.func,
     onClickRemix: PropTypes.func,

@@ -1,0 +1,42 @@
+{
+    "fa": {
+        "tw.menuBar.package": "ساخت خروجی پروژه",
+        "gui.packager.title": "ساخت خروجی پروژه",
+        "gui.packager.preparing": "در حال ذخیرهٔ نسخهٔ موقت پروژهٔ فعلی…",
+        "gui.packager.ready": "فایل HTML آماده است",
+        "gui.packager.save": "ذخیره",
+        "gui.packager.share": "اشتراک‌گذاری",
+        "gui.packager.working": "لطفاً صبر کنید…",
+        "gui.packager.saved": "در پوشهٔ دانلود ذخیره شد: {name}",
+        "gui.packager.downloading": "درخواست دانلود آغاز شد: {name}",
+        "gui.packager.shared": "پنجرهٔ اشتراک‌گذاری باز شد.",
+        "gui.packager.explanation": "زمانی که شما به صورت html خروجی می گیرید سرعت بازی شما بسیار روانتر و سریعتر می شود 😍 و می توانید ان را باخیال راحت برای دوستانتان بفرستید",
+        "gui.packager.engine": "اما توجه کنید که فایل های html توسط نرم افزار اسکرچ دیگر قابل ویرایش نیستند و فقط برای اجرا مناسب می باشند",
+        "gui.packager.failed": "عملیات انجام نشد. پروژهٔ شما تغییر نکرده است؛ دوباره تلاش کنید.",
+        "gui.packager.run": "اجرای مستقیم",
+        "gui.packager.running": "اجرای مستقیم",
+        "gui.packager.closePlayer": "بستن",
+        "gui.packager.refreshPlayer": "رفرش",
+        "gui.packager.stored": "در پروژه‌های من ذخیره شد: {name}"
+    },
+    "ar": {
+        "tw.menuBar.package": "إنشاء ملف المشروع",
+        "gui.packager.title": "إنشاء ملف المشروع",
+        "gui.packager.preparing": "جارٍ حفظ نسخة مؤقتة من المشروع الحالي…",
+        "gui.packager.ready": "ملف HTML جاهز",
+        "gui.packager.save": "حفظ",
+        "gui.packager.share": "مشاركة",
+        "gui.packager.working": "يرجى الانتظار…",
+        "gui.packager.saved": "تم الحفظ في مجلد التنزيلات: {name}",
+        "gui.packager.downloading": "بدأ طلب التنزيل: {name}",
+        "gui.packager.shared": "تم فتح نافذة المشاركة.",
+        "gui.packager.explanation": "عندما تُصدّر مشروعك بصيغة html، تصبح لعبتك أكثر سلاسة وسرعة 😍 ويمكنك إرسالها إلى أصدقائك بكل راحة",
+        "gui.packager.engine": "لكن انتبه إلى أن ملفات html لا يمكن تعديلها ببرنامج سكراتش، وهي مناسبة للتشغيل فقط",
+        "gui.packager.failed": "تعذرت العملية. لم يتغير مشروعك؛ حاول مرة أخرى.",
+        "gui.packager.run": "تشغيل مباشر",
+        "gui.packager.running": "تشغيل مباشر",
+        "gui.packager.closePlayer": "إغلاق",
+        "gui.packager.refreshPlayer": "تحديث",
+        "gui.packager.stored": "تم الحفظ في مشاريعي: {name}"
+    }
+}

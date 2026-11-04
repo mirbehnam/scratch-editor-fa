@@ -1,4 +1,7 @@
-import React from 'react';
+import React, {useCallback, useState} from 'react';
+import PackagerModal from '../packager-modal/packager-modal.jsx';
+import {DARK_MODE} from '../../lib/settings/color-mode';
+import {getIsShowingProject, saveProjectAsCopy} from '../../reducers/project-state';
 import styles from './menu-bar.css';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -14,7 +17,6 @@ import useMenuNavigation from '../../hooks/use-menu-navigation';
 
 import sharedMessages from '../../lib/shared-messages';
 
-import {saveProjectAsCopy} from '../../reducers/project-state';
 
 const fileMenu = defineMessage({
     id: 'gui.aria.fileMenu',
@@ -34,9 +36,14 @@ const FileMenu = ({
     onStartSelectingFileUpload,
     getSaveToComputerHandler,
     remixMessage,
-    depth
+    depth,
+    vm,
+    title,
+    dark,
+    ready
 }) => {
     const intl = useIntl();
+    const [packagerOpen, setPackagerOpen] = useState(false);
 
     const {
         menuRef,
@@ -49,6 +56,13 @@ const FileMenu = ({
         depth,
         isRtl
     });
+
+    const openPackager = useCallback(() => {
+        if (!ready) return;
+        handleOnClose();
+        setPackagerOpen(true);
+    }, [ready, handleOnClose]);
+    const closePackager = useCallback(() => setPackagerOpen(false), []);
 
     const saveNowMessage = (
         <FormattedMessage
@@ -73,96 +87,117 @@ const FileMenu = ({
     );
 
     return (
-        <button
-            className={classNames(styles.menuBarItem, styles.hoverable, {
-                [styles.active]: isExpanded()
-            })}
-            onClick={handleOnOpen}
-            aria-label={intl.formatMessage(fileMenu)}
-            aria-expanded={isExpanded()}
-            ref={menuRef}
-            onKeyDown={handleKeyDown}
-        >
-            <img src={fileIcon} />
-            <span className={styles.collapsibleLabel}>
-                <FormattedMessage
-                    defaultMessage="File"
-                    description="Text for file dropdown menu"
-                    id="gui.menuBar.file"
-                />
-            </span>
-            <img src={dropdownCaret} />
-            <MenuBarMenu
-                className={classNames(styles.menuBarMenu)}
-                open={isExpanded()}
-                place={isRtl ? 'left' : 'right'}
-                onRequestClose={handleOnClose}
+        <React.Fragment>
+            <button
+                className={classNames(styles.menuBarItem, styles.hoverable, {
+                    [styles.active]: isExpanded()
+                })}
+                onClick={handleOnOpen}
+                aria-label={intl.formatMessage(fileMenu)}
+                aria-expanded={isExpanded()}
+                ref={menuRef}
+                onKeyDown={handleKeyDown}
             >
-                <MenuSection>
-                    <MenuItem
-                        onClick={onClickNew}
-                        isDataMenuItem
-                        onParentKeyDown={handleKeyDownOpenMenu}
-                    >
-                        {newProjectMessage}
-                    </MenuItem>
-                </MenuSection>
-                {(canSave || canCreateCopy || canRemix) && (
+                <img src={fileIcon} />
+                <span className={styles.collapsibleLabel}>
+                    <FormattedMessage
+                        defaultMessage="File"
+                        description="Text for file dropdown menu"
+                        id="gui.menuBar.file"
+                    />
+                </span>
+                <img src={dropdownCaret} />
+                <MenuBarMenu
+                    className={classNames(styles.menuBarMenu)}
+                    open={isExpanded()}
+                    place={isRtl ? 'left' : 'right'}
+                    onRequestClose={handleOnClose}
+                >
                     <MenuSection>
-                        {canSave && (
-                            <MenuItem
-                                onClick={onClickSave}
-                                isDataMenuItem
-                                onParentKeyDown={handleKeyDownOpenMenu}
-                            >
-                                {saveNowMessage}
-                            </MenuItem>
-                        )}
-                        {canCreateCopy && (
-                            <MenuItem
-                                onClick={onClickSaveAsCopy}
-                                isDataMenuItem
-                                onParentKeyDown={handleKeyDownOpenMenu}
-                            >
-                                {createCopyMessage}
-                            </MenuItem>
-                        )}
-                        {canRemix && (
-                            <MenuItem
-                                onClick={onClickRemix}
-                                isDataMenuItem
-                                onParentKeyDown={handleKeyDownOpenMenu}
-                            >
-                                {remixMessage}
-                            </MenuItem>
-                        )}
-                    </MenuSection>
-                )}
-                <MenuSection>
-                    <MenuItem
-                        onClick={onStartSelectingFileUpload}
-                        isDataMenuItem
-                        onParentKeyDown={handleKeyDownOpenMenu}
-                    >
-                        {intl.formatMessage(sharedMessages.loadFromComputerTitle)}
-                    </MenuItem>
-                    <SB3Downloader>{(className, downloadProjectCallback) => (
                         <MenuItem
-                            className={className}
-                            onClick={getSaveToComputerHandler(downloadProjectCallback)}
+                            onClick={onClickNew}
+                            isDataMenuItem
+                            onParentKeyDown={handleKeyDownOpenMenu}
+                        >
+                            {newProjectMessage}
+                        </MenuItem>
+                    </MenuSection>
+                    {(canSave || canCreateCopy || canRemix) && (
+                        <MenuSection>
+                            {canSave && (
+                                <MenuItem
+                                    onClick={onClickSave}
+                                    isDataMenuItem
+                                    onParentKeyDown={handleKeyDownOpenMenu}
+                                >
+                                    {saveNowMessage}
+                                </MenuItem>
+                            )}
+                            {canCreateCopy && (
+                                <MenuItem
+                                    onClick={onClickSaveAsCopy}
+                                    isDataMenuItem
+                                    onParentKeyDown={handleKeyDownOpenMenu}
+                                >
+                                    {createCopyMessage}
+                                </MenuItem>
+                            )}
+                            {canRemix && (
+                                <MenuItem
+                                    onClick={onClickRemix}
+                                    isDataMenuItem
+                                    onParentKeyDown={handleKeyDownOpenMenu}
+                                >
+                                    {remixMessage}
+                                </MenuItem>
+                            )}
+                        </MenuSection>
+                    )}
+                    <MenuSection>
+                        <MenuItem
+                            onClick={onStartSelectingFileUpload}
+                            isDataMenuItem
+                            onParentKeyDown={handleKeyDownOpenMenu}
+                        >
+                            {intl.formatMessage(sharedMessages.loadFromComputerTitle)}
+                        </MenuItem>
+                        <SB3Downloader>{(className, downloadProjectCallback) => (
+                            <MenuItem
+                                className={className}
+                                onClick={getSaveToComputerHandler(downloadProjectCallback)}
+                                isDataMenuItem
+                                onParentKeyDown={handleKeyDownOpenMenu}
+                            >
+                                <FormattedMessage
+                                    defaultMessage="Save to your computer"
+                                    description="Menu bar item for downloading a project to your computer" // eslint-disable-line @stylistic/max-len
+                                    id="gui.menuBar.downloadToComputer"
+                                />
+                            </MenuItem>
+                        )}</SB3Downloader>
+                    </MenuSection>
+                    <MenuSection>
+                        <MenuItem
+                            onClick={openPackager}
+                            isDisabled={!ready}
                             isDataMenuItem
                             onParentKeyDown={handleKeyDownOpenMenu}
                         >
                             <FormattedMessage
-                                defaultMessage="Save to your computer"
-                                description="Menu bar item for downloading a project to your computer" // eslint-disable-line @stylistic/max-len
-                                id="gui.menuBar.downloadToComputer"
+                                id="gui.menuBar.package"
+                                defaultMessage="Package project"
                             />
                         </MenuItem>
-                    )}</SB3Downloader>
-                </MenuSection>
-            </MenuBarMenu>
-        </button>
+                    </MenuSection>
+                </MenuBarMenu>
+            </button>
+            {packagerOpen && <PackagerModal
+                vm={vm}
+                title={title}
+                dark={dark}
+                onClose={closePackager}
+            />}
+        </React.Fragment>
     );
 };
 
@@ -178,11 +213,19 @@ FileMenu.propTypes = {
     onClickNew: PropTypes.func.isRequired,
     getSaveToComputerHandler: PropTypes.func.isRequired,
     remixMessage: PropTypes.node,
-    depth: PropTypes.number
+    depth: PropTypes.number,
+    vm: PropTypes.shape({saveProjectSb3: PropTypes.func}),
+    title: PropTypes.string,
+    dark: PropTypes.bool,
+    ready: PropTypes.bool
 };
 
 const mapStateToProps = state => ({
-    isRtl: state.locales.isRtl
+    isRtl: state.locales.isRtl,
+    vm: state.scratchGui.vm,
+    title: state.scratchGui.projectTitle,
+    dark: state.scratchGui.settings.colorMode === DARK_MODE,
+    ready: getIsShowingProject(state.scratchGui.projectState.loadingState)
 });
 
 const mapDispatchToProps = dispatch => ({

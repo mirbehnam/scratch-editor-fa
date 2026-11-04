@@ -68,11 +68,12 @@ describe('StageHeader Component', () => {
         localStorage.clear();
     });
 
-    test('full-screen logo links to the Farsi Scratch website', () => {
+    test('full-screen Scratch branding is an image without a link', () => {
         const {container} = renderWithIntl(getComponent({isFullScreen: true, showBranding: true}));
 
-        expect(container.querySelector('a[href="https://scratch.behnamapps.ir/"] img[alt="Scratch"]'))
-            .not.toBeNull();
+        const logo = container.querySelector('img[alt="Scratch"]');
+        expect(logo).not.toBeNull();
+        expect(logo.closest('a, button')).toBeNull();
     });
 
     test('a capture failure re-enables the thumbnail button and reports the error', () => {

@@ -9,7 +9,6 @@ import ToggleButtons from '../toggle-buttons/toggle-buttons.jsx';
 import Controls from '../../containers/controls.jsx';
 import {getStageDimensions} from '../../lib/screen-utils';
 import {STAGE_SIZE_MODES} from '../../lib/layout-constants';
-import HOME_URL from '../../lib/home-url.js';
 
 import fullScreenIcon from './icon--fullscreen.svg';
 import largeStageIcon from './icon--large-stage.svg';
@@ -211,17 +210,10 @@ const StageHeaderComponent = function (props) {
         const stageDimensions = getStageDimensions(null, true);
         const stageButton = showBranding ? (
             <div className={styles.embedScratchLogo}>
-                <a
-                    href={HOME_URL}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    data-focusable
-                >
-                    <img
-                        alt="Scratch"
-                        src={scratchLogo}
-                    />
-                </a>
+                <img
+                    alt="Scratch"
+                    src={scratchLogo}
+                />
             </div>
         ) : (
             <div className={styles.unselectWrapper}>

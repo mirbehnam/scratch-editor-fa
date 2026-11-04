@@ -180,3 +180,26 @@ Review all changes and confirm:
 - **Build passes**: `npm run build` (or `npm run build` in the affected package) completes successfully.
 - **Tests pass**: `npm test` (or `npm test` in the affected package) completes with no failures.
 - **No lint errors**: `npm run test:lint` (or `npm run lint`) passes in the affected package.
+
+High-quality playback uses the pinned local dependency in `vendor/quality-packager`.
+Read its README before editing that dependency; update both its source and generated
+runtime/hash manifest. Never replace the editor VM or retain builder/player frames
+after their lifecycle ends. Native Android playback must remain bridge-free.
+
+Saved HTML projects belong to the Android client's private library, independently
+of disposable playback files. Closing a player must never remove a saved project.
+The top-bar and fullscreen Scratch logos are inert images; do not restore their
+Home glyph, links or click handlers during upstream merges.
+
+The File menu also exposes the manual HTML packager using the same local
+`quality-packager/` runtime, export bridge and isolated player as quality playback.
+Keep manual presets/Advanced options and their minimum five-second build indicator;
+automatic quality playback must not inherit that artificial delay. Windows exports
+use the main-frame-only preload/IPC path; Android HTML Save uses its private library.
+
+## Auto Builder integration
+
+The sibling `../auto-builder/README.md` describes the local Windows build tool.
+When changing Android/Windows build commands, outputs, prerequisites or asset
+contracts, update Auto Builder and its safety checks and documentation as well.
+The Android host owns shared-media deduplication; do not deduplicate its raw inputs.

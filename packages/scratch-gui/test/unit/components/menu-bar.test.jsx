@@ -74,12 +74,14 @@ describe('MenuBar Component', () => {
         }
     });
 
-    test('home button calls its navigation handler', () => {
+    test('Scratch branding is inert and has no home button', () => {
         const onClickLogo = jest.fn();
-        const {getByRole} = renderWithIntl(getComponent({onClickLogo}));
-
-        fireEvent.click(getByRole('button', {name: 'Home'}));
-        expect(onClickLogo).toHaveBeenCalledTimes(1);
+        const {container, getByAltText} = renderWithIntl(getComponent({onClickLogo}));
+        const logo = getByAltText('Scratch');
+        expect(container.querySelector('button[aria-label="Home"]')).toBeNull();
+        expect(logo.closest('button, a')).toBeNull();
+        fireEvent.click(logo);
+        expect(onClickLogo).not.toHaveBeenCalled();
     });
 
     test('menu bar with an About handler has an About button', () => {

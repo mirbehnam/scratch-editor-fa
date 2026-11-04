@@ -105,6 +105,28 @@ describe('SBFileUploaderHOC', () => {
         expect(requestProjectUpload).toHaveBeenCalledWith(LoadingState.SHOWING_WITHOUT_ID);
     });
 
+    test('defers a cold Android import until the initial project is showing', async () => {
+        global.fetch = jest.fn(() => Promise.resolve({ok: true, arrayBuffer: () => Promise.resolve(new ArrayBuffer(4))}));
+        const requestProjectUpload = jest.fn();
+        const WrappedComponent = getContainer();
+        const props = {store, vm, requestProjectUpload, isLoadingUpload: false};
+        const {rerender} = renderWithIntl(<WrappedComponent
+            {...props}
+            isShowingProject={false}
+        />);
+        await act(() => window.AndroidScratchLoadProjectUrl('/imports/test.sb3', 'test.sb3'));
+        expect(global.fetch).not.toHaveBeenCalled();
+        expect(requestProjectUpload).not.toHaveBeenCalled();
+        await act(() => rerender(<IntlProvider locale="en">
+            <WrappedComponent
+                {...props}
+                isShowingProject
+            />
+        </IntlProvider>));
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(requestProjectUpload).toHaveBeenCalledWith(LoadingState.SHOWING_WITHOUT_ID);
+    });
+
     test('if isLoadingUpload becomes true, without fileToUpload set, will call cancelFileUpload', () => {
         const mockedCancelFileUpload = jest.fn();
         const WrappedComponent = getContainer();

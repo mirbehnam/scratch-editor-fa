@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TurboWarp Packager - Convert Scratch projects to HTML, EXE, and more</title><meta name="description" content="Converts Scratch 3, 2, or 1 projects into HTML files, zip archives, or executable programs for Windows, macOS, and Linux. Faster and more customizable than HTMLifier and forkphorus."><style>@font-face {font-family: BYekan;src:url('./BYekan.woff2') format('woff2');font-display:swap;}
+      :root {--packager-accent:#4c97ff;--packager-background:#e9f1fc;--packager-surface:#fff;--packager-text:#333;--packager-border:#d5d9e2;}
+      :root[theme=dark] {--packager-background:#202124;--packager-surface:#303134;--packager-text:#eee;--packager-border:#555;}
+      html,body {background:var(--packager-background)!important;color:var(--packager-text)!important;}
+      body {margin:0;padding:12px;}
+      body,button,input,select,textarea {font-family:BYekan,'Helvetica Neue',Arial,sans-serif!important;font-size:15px;}
+      section {border-radius:8px!important;border:1px solid var(--packager-border)!important;border-top:3px solid var(--packager-accent)!important;background:var(--packager-surface)!important;box-shadow:none!important;margin:0 0 12px!important;padding:14px!important;max-width:none!important;}
+      input[type=text],input[type=number],textarea,select {border-radius:6px!important;padding:5px 7px!important;max-width:100%;}
+      button {border-radius:6px!important;}
+      button:not([class*=dangerous]):not([title]) {background:var(--packager-accent)!important;}
+      h2 {font-size:1.15rem!important;}
+      .buttons {flex-wrap:wrap;gap:8px;}
+      [dir=rtl] input[type=number],[dir=rtl] input[type=color] {direction:ltr;}
+      [dir=rtl] textarea {direction:ltr;text-align:left;}
+
+      body[p4-splash-theme="dark"]:not([p4-loaded]) {
+        background-color: #111;
+        color-scheme: dark;
+      }
+      .input-for-remembering-project-file {
+        display: none;
+      }</style></head><body><noscript>This page requires JavaScript.</noscript><input type="file" class="input-for-remembering-project-file" autocomplete="on"><div id="app"></div><script>(function() {
+        // This logic is only for the "splash" screen.
+        // It's used to prevent a momentary white screen while the page is loading in dark mode.
+        var theme = 'system';
+        try {
+          var local = localStorage.getItem('P4.theme')
+          if (typeof local === 'string') theme = local;
+        } catch (e) { /* ignore */ }
+        if (theme === 'system') theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.body.setAttribute('p4-splash-theme', theme);
+      })();</script><script src="js/p4.a4d8818a4c4941effeec.js"></script></body></html>

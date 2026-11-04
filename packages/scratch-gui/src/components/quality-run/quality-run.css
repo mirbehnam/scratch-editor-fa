@@ -1,0 +1,37 @@
+@import "../../css/colors.css";
+.modal-content {
+    width: 1000px;
+    max-width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    max-height: calc(100% - 16px);
+    margin: 8px auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+.modal-content > div { display: flex; flex-direction: column; min-height: 0; }
+.modal-content > div > div:first-child { flex-shrink: 0; }
+.body { flex: 1; min-height: 0; display: flex; flex-direction: column; background: $ui-primary; }
+.workspace { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.frame { flex: 1; width: 100%; min-height: 0; border: none; }
+.hidden { display: none; }
+.result { margin: auto; padding: 1rem; max-width: 36rem; text-align: center; overflow-y: auto; }
+.filename { overflow-wrap: anywhere; user-select: text; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin: 1rem 0; }
+.button { padding: 0.75rem 1.5rem; border-radius: 0.5rem; border: 1px solid $ui-black-transparent; background: $looks-secondary; color: white; cursor: pointer; }
+.button:disabled { opacity: 0.5; cursor: wait; }
+.error { color: #c22727; }
+.player-modal { margin: 0; width: 100%; height: 100%; }
+.player-modal > div { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.player { direction: ltr; display: flex; flex-direction: row; flex: 1; min-height: 0; background: $ui-primary; }
+.player-toolbar { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; gap: 0.5rem; padding: 0.5rem; background: #1d1930; }
+.player-button { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border: 1px solid #ffffff20; border-radius: 0.75rem; background: #ffffff1a; color: white; cursor: pointer; }
+.player-button:hover { background: $looks-transparent; }
+.player-button svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.player-frame { flex: 1; width: 100%; min-height: 0; border: 0; background: black; }
+
+.launch { color: white; background: #ffffff1a; border: 1px solid #ffffff40; border-radius: 0.4rem; padding: 0.4rem 0.65rem; margin: 0 0.5rem; font: inherit; white-space: nowrap; cursor: pointer; }
+.launch:disabled { opacity: 0.5; cursor: default; }
+.loading { margin: auto; text-align: center; padding: 1rem; }
+.spinner { width: 2rem; height: 2rem; margin: auto; border: 3px solid #8884; border-top-color: $looks-secondary; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
